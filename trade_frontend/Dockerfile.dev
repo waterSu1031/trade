@@ -1,0 +1,23 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies for better dev experience
+RUN apk add --no-cache \
+    git \
+    curl
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies)
+RUN npm install
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Set environment to development
+ENV NODE_ENV=development
+
+# Run dev server with host binding
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Development database
+  db:
+    image: postgres:15-alpine
+    container_name: trade_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trade_db
+      POSTGRES_USER: trade_user
+      POSTGRES_PASSWORD: trade_pass
+    ports:
+      - "5433:5432"  # Changed to avoid conflict
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - trade_network_dev
+
+  # Redis Cache (Development)
+  redis:
+    image: redis:7-alpine
+    container_name: trade_redis_dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379"  # Changed to avoid conflict
+    networks:
+      - trade_network_dev
+
+  # Backend API (Development with hot reload)
+  backend:
+    build:
+      context: ../../../trade_dashboard
+      dockerfile: Dockerfile.dev
+    container_name: trade_backend_dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://trade_user:trade_pass@db:5432/trade_db
+      REDIS_URL: redis://redis:6379
+      IB_HOST: host.docker.internal
+      IB_PORT: 7497
+      IB_CLIENT_ID: 1
+      ENVIRONMENT: development
+      DEBUG: true
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - trade_network_dev
+    volumes:
+      - ../../../trade_dashboard:/app  # Mount source code for hot reload
+      - /app/__pycache__       # Exclude __pycache__
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend (Development with hot reload)
+  frontend:
+    build:
+      context: ../../../trade_frontend
+      dockerfile: Dockerfile.dev
+    container_name: trade_frontend_dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:8000
+      VITE_WS_URL: ws://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - trade_network_dev
+    volumes:
+      - ../../../trade_frontend:/app
+      - /app/node_modules  # Exclude node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres_data_dev:
+    driver: local
+
+networks:
+  trade_network_dev:
+    driver: bridge

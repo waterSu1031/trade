@@ -1,0 +1,23 @@
+cluster.name: trade-cluster
+node.name: trade-es-node
+
+# Network settings
+network.host: 0.0.0.0
+http.port: 9200
+
+# Discovery settings for single-node
+discovery.type: single-node
+
+# Memory settings
+bootstrap.memory_lock: true
+
+# Security settings (disable for development)
+xpack.security.enabled: false
+xpack.security.enrollment.enabled: false
+
+# Monitoring
+xpack.monitoring.collection.enabled: true
+
+# CORS settings for development
+http.cors.enabled: true
+http.cors.allow-origin: "*"

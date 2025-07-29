@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles */
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  
+  html {
+    @apply bg-ibkr-background text-ibkr-text;
+  }
+  
+  body {
+    @apply text-sm antialiased bg-ibkr-background;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-ibkr-surface;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ibkr-border rounded hover:bg-ibkr-text-secondary;
+  }
+}
+
+/* Custom Component Styles */
+@layer components {
+  /* Navigation Styles */
+  .nav-container {
+    @apply bg-ibkr-surface border-b border-ibkr-border;
+  }
+  
+  .nav-item {
+    @apply px-4 py-3 text-ibkr-text-secondary hover:text-ibkr-text hover:bg-ibkr-background/50 transition-colors;
+  }
+  
+  .nav-item-active {
+    @apply text-ibkr-primary border-b-2 border-ibkr-primary;
+  }
+  
+  /* Button Styles */
+  .btn-primary {
+    @apply px-4 py-2 rounded bg-ibkr-primary text-white hover:bg-ibkr-secondary transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 rounded bg-transparent text-ibkr-text border border-ibkr-border hover:bg-ibkr-surface transition-colors;
+  }
+  
+  /* Card Styles */
+  .custom-card {
+    @apply bg-ibkr-surface border border-ibkr-border rounded-md p-4;
+  }
+}
+
+/* Trading-specific Styles */
+@layer utilities {
+  /* Profit/Loss Colors */
+  .text-profit {
+    @apply text-ibkr-success font-mono;
+  }
+  
+  .text-loss {
+    @apply text-ibkr-danger font-mono;
+  }
+  
+  .text-neutral {
+    @apply text-ibkr-text-secondary font-mono;
+  }
+  
+  /* Number Formatting */
+  .number-positive::before {
+    content: '+';
+  }
+  
+  .percentage::after {
+    content: '%';
+  }
+}
+
+/* Tremor Dark Theme Override */
+.dark\:tremor-background-DEFAULT {
+  background-color: #1a1a1a;
+}
+
+.dark\:tremor-background-subtle {
+  background-color: #2a2a2a;
+}
+
+.dark\:tremor-border-DEFAULT {
+  border-color: #3a3a3a;
+}
