@@ -2,6 +2,8 @@
 
 This directory contains all infrastructure-related configurations for the Trade System.
 
+<!-- Test comment for monorepo structure verification - infra project -->
+
 ## Directory Structure
 
 ```
