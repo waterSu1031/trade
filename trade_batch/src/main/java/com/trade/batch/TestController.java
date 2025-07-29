@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+// Test comment for monorepo structure verification - batch project
 @Slf4j
 @RestController
 public class TestController {
