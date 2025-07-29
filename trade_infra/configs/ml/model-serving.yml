@@ -1,50 +1,80 @@
-# ML Model Serving Configuration
-# This file configures the model serving settings
+# TorchServe Configuration for PatchTST Model
+# This file configures the model serving settings for PyTorch models
 
 # Model Configuration
-model:
-  name: trade_model
-  base_path: /models
-  version_policy:
-    # Serve specific versions
-    specific:
-      versions: [1]
-    # Or serve latest N versions
-    # latest:
-    #   num_versions: 2
+models:
+  patch_tst:
+    # Model archive file name (without .mar extension)
+    name: patch_tst_trade
+    # Initial number of workers
+    min_workers: 1
+    max_workers: 4
+    # Batch size for inference
+    batch_size: 8
+    # Maximum batch delay in ms
+    max_batch_delay: 100
+    # Response timeout in seconds
+    response_timeout: 300
+    # Model version
+    version: "1.0"
 
-# Serving Configuration
-serving:
-  # REST API Configuration
-  rest_api:
-    port: 8501
-    enable_cors: true
-    timeout_ms: 60000
+# PatchTST Specific Configuration
+patch_tst:
+  # Time series configuration
+  context_length: 512      # Historical context window
+  prediction_length: 96    # Future prediction horizon
+  patch_length: 16        # Length of each patch
+  stride: 8               # Stride for patch extraction
   
-  # gRPC Configuration
-  grpc:
-    port: 8500
-    max_message_size: 4194304  # 4MB
+  # Model architecture
+  d_model: 128            # Transformer dimension
+  n_heads: 8              # Number of attention heads
+  n_layers: 3             # Number of transformer layers
   
-  # Model Loading Configuration
-  model_config_file_poll_wait_seconds: 60
-  file_system_poll_wait_seconds: 1
+  # Input configuration
+  num_features: 1         # Univariate or multivariate
+  scaling: true           # Enable input scaling
+  
+# API Configuration
+api:
+  # Inference endpoint
+  inference:
+    port: 8080
+    protocol: http
+  # Management endpoint
+  management:
+    port: 8081
+    protocol: http
+  # Metrics endpoint
+  metrics:
+    port: 8082
+    protocol: http
+    format: prometheus
 
 # Performance Tuning
 performance:
-  # Number of threads for parallel execution
-  num_threads: 4
-  # Batch configuration for better throughput
-  batching:
-    enable: true
-    max_batch_size: 32
-    batch_timeout_micros: 1000
-    max_enqueued_batches: 128
+  # Worker configuration
+  default_workers_per_model: 2
+  job_queue_size: 100
+  
+  # Batching for throughput
+  enable_batching: true
+  max_batch_size: 8
+  max_batch_delay_ms: 100
+  
+  # Memory settings
+  max_request_size: 67108864  # 64MB
+  max_response_size: 67108864  # 64MB
 
-# Monitoring
+# Logging and Monitoring
 monitoring:
-  enable_model_metrics: true
-  metric_tags:
-    - model_name
-    - model_version
-    - method_name
+  log_level: INFO
+  log_location: /home/model-server/logs
+  enable_metrics: true
+  metrics_interval: 60  # seconds
+  
+# Model Store Configuration
+model_store:
+  path: /home/model-server/model-store
+  polling_interval: 30  # seconds
+  load_models: all      # Load all models at startup
