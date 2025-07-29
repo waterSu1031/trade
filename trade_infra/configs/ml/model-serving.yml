@@ -1,0 +1,50 @@
+# ML Model Serving Configuration
+# This file configures the model serving settings
+
+# Model Configuration
+model:
+  name: trade_model
+  base_path: /models
+  version_policy:
+    # Serve specific versions
+    specific:
+      versions: [1]
+    # Or serve latest N versions
+    # latest:
+    #   num_versions: 2
+
+# Serving Configuration
+serving:
+  # REST API Configuration
+  rest_api:
+    port: 8501
+    enable_cors: true
+    timeout_ms: 60000
+  
+  # gRPC Configuration
+  grpc:
+    port: 8500
+    max_message_size: 4194304  # 4MB
+  
+  # Model Loading Configuration
+  model_config_file_poll_wait_seconds: 60
+  file_system_poll_wait_seconds: 1
+
+# Performance Tuning
+performance:
+  # Number of threads for parallel execution
+  num_threads: 4
+  # Batch configuration for better throughput
+  batching:
+    enable: true
+    max_batch_size: 32
+    batch_timeout_micros: 1000
+    max_enqueued_batches: 128
+
+# Monitoring
+monitoring:
+  enable_model_metrics: true
+  metric_tags:
+    - model_name
+    - model_version
+    - method_name

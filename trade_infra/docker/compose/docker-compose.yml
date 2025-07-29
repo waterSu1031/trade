@@ -13,7 +13,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ../../volumes/postgresql:/var/lib/postgresql/data
+      - ../../configs/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - trade_network
     healthcheck:
@@ -29,6 +31,10 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - ../../volumes/redis:/data
+      - ../../configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
     networks:
       - trade_network
     healthcheck:
@@ -105,9 +111,28 @@ services:
     networks:
       - trade_network
 
-volumes:
-  postgres_data:
-    driver: local
+  # ML Model Serving (Optional - comment out if not using ML features)
+  # ml-serving:
+  #   build:
+  #     context: ../ml-serving
+  #     dockerfile: Dockerfile
+  #   container_name: trade_ml_serving
+  #   restart: unless-stopped
+  #   environment:
+  #     MODEL_NAME: ${ML_MODEL_NAME:-trade_model}
+  #     MODEL_BASE_PATH: ${ML_MODEL_BASE_PATH:-/models}
+  #   ports:
+  #     - "${ML_REST_PORT:-8501}:8501"  # REST API
+  #     - "${ML_GRPC_PORT:-8500}:8500"  # gRPC API
+  #   volumes:
+  #     - ../../volumes/models:/models:ro
+  #   networks:
+  #     - trade_network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8501/v1/models/${ML_MODEL_NAME:-trade_model}"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
 
 networks:
   trade_network:

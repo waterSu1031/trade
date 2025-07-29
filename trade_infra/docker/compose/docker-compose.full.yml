@@ -16,7 +16,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ../../volumes/postgresql:/var/lib/postgresql/data
+      - ../../configs/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - trade_network
     healthcheck:
@@ -32,6 +34,10 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - ../../volumes/redis:/data
+      - ../../configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
     networks:
       - trade_network
     healthcheck:
@@ -213,8 +219,6 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
 
 volumes:
-  postgres_data:
-    driver: local
   prometheus_data:
     driver: local
   grafana_data:
