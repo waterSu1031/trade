@@ -1,4 +1,5 @@
 <script lang="ts">
+  // Test comment for monorepo structure verification - frontend project
   import { onMount } from 'svelte';
   import { dashboardApi, type DashboardSummary } from '$lib/api/dashboard';
   import Chart from 'chart.js/auto';
