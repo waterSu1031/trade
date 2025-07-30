@@ -114,7 +114,7 @@ public class IBKRConnectionMonitor {
             .connected(clientIBKR.isConnected())
             .reconnectAttempts(reconnectAttempts.get())
             .maxReconnectAttempts(MAX_RECONNECT_ATTEMPTS)
-            .clientId(30)
+            .clientId(clientIBKR.getClientId())
             .service("trade_batch")
             .build();
     }

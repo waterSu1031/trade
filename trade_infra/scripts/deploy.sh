@@ -46,15 +46,15 @@ cd "$COMPOSE_DIR"
 
 # Pull latest images
 echo "Pulling latest images..."
-docker compose -f "$COMPOSE_FILE" pull
+docker-compose -f "$COMPOSE_FILE" pull
 
 # Build custom images
 echo "Building custom images..."
-docker compose -f "$COMPOSE_FILE" build
+docker-compose -f "$COMPOSE_FILE" build
 
 # Start services
 echo "Starting services..."
-docker compose -f "$COMPOSE_FILE" up -d
+docker-compose -f "$COMPOSE_FILE" up -d
 
 # Wait for services to be healthy
 echo "Waiting for services to be healthy..."
@@ -63,7 +63,7 @@ sleep 10
 # Show status
 echo ""
 echo "Deployment complete! Service status:"
-docker compose -f "$COMPOSE_FILE" ps
+docker-compose -f "$COMPOSE_FILE" ps
 
 echo ""
 echo "Access points:"
@@ -74,5 +74,5 @@ echo "  - API Docs: http://localhost:8000/docs"
 if [ "$COMPOSE_FILE" == "docker-compose.full.yml" ]; then
     echo "  - Prometheus: http://localhost:9090"
     echo "  - Grafana: http://localhost:3001 (admin/admin)"
-    echo "  - Elasticsearch: http://localhost:9200"
+    echo "  - Loki: http://localhost:3100 (via Grafana)"
 fi

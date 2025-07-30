@@ -37,9 +37,11 @@ services:
     environment:
       DATABASE_URL: postgresql://trade_user:trade_pass@db:5432/trade_db
       REDIS_URL: redis://redis:6379
-      IB_HOST: host.docker.internal
-      IB_PORT: 7497
-      IB_CLIENT_ID: 1
+      IB_HOST: ${IB_HOST:-host.docker.internal}
+      IB_PORT: ${IB_PORT:-4002}
+      IB_CLIENT_ID_DASHBOARD: ${IB_CLIENT_ID_DASHBOARD:-10}
+      IB_USERNAME: ${IB_USERNAME:-}
+      IB_PASSWORD: ${IB_PASSWORD:-}
       ENVIRONMENT: development
       DEBUG: true
     ports:

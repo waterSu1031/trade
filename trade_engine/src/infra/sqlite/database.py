@@ -58,41 +58,13 @@ def create_trade_tables():
 
 
 def create_data_tables():
+    # 이제 개별 테이블을 생성하지 않고 price_US_time 테이블을 사용
+    # 필요한 경우 파티션 테이블 생성만 수행
     conn_trade = get_connection()
     cursor = conn_trade.cursor()
-    cursor.execute("""
-        SELECT symbol, con_id, database, interval as interval_str
-        FROM sym_x_data
-        WHERE is_active = 'Y'
-    """)
-    rows = cursor.fetchall()
     
-    for symbol, con_id, database, interval_str in rows:
-        print(f"처리 중: {symbol}")
-        
-        # intervals = [x.strip() for x in interval_str.split(",") if x.strip()]
-        intervals = [x.strip() for x in (interval_str or "").split(",") if x.strip()]
-        for interval in intervals:
-            try:
-                table_name = f"{symbol}_{interval}".replace("-", "_").replace(".", "_")
-                ddl = f"""
-                CREATE TABLE IF NOT EXISTS {table_name} (
-                    timestamp TIMESTAMP NOT NULL,     -- 각 캔들의 시작 시간
-                    idx INTEGER DEFAULT 0 NOT NULL,   -- 레인지 바일 경우 순번 또는 범위 구분용
-                    open DOUBLE PRECISION,
-                    high DOUBLE PRECISION,
-                    low DOUBLE PRECISION,
-                    close DOUBLE PRECISION,
-                    volume DOUBLE PRECISION,
-                    PRIMARY KEY (timestamp, idx)       -- 데이터 중복 방지
-                );
-                """
-                cursor.execute(ddl)
-                conn_trade.commit()
-            except Exception as e:
-                print(f"오류 발생 ({symbol}_{interval}): {e}")
-
-            print(f"✅ 생성됨: TRADE.{table_name}")
+    # price_US_time 테이블이 이미 schema.sql에서 생성되므로 별도 작업 불필요
+    print("✅ 가격 데이터는 price_US_time 테이블에 저장됩니다.")
     
     conn_trade.close()
 

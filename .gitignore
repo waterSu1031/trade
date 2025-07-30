@@ -111,4 +111,4 @@ IBConnectionTest*.class
 IBConnectionTest*.java
 TestIBConnection.java
 docker-*-test.log
-new-docker-*-test.log
+new-docker-*-test.logtrade_infra/volumes/

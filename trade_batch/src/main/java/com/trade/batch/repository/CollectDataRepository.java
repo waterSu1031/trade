@@ -45,21 +45,24 @@ public class CollectDataRepository {
         return namedJdbcTemplate.queryForList(sql, Map.of());
     }
 
-    public void insertExcXCon(Map<String, Object> row) {
+    public void insertExcXSym(Map<String, Object> row) {
         String sql = """
-            INSERT INTO exc_x_con (con_id, exchange, symbol)
-            VALUES (:con_id, :exchange, :symbol)
+            INSERT INTO exc_x_sym (exchange, symbol)
+            VALUES (:exchange, :symbol)
         """;
         namedJdbcTemplate.update(sql, row);
     }
 
-    public void upsertConXData(Map<String, Object> row) {
+    public void upsertSymXData(Map<String, Object> row) {
         String sql = """
-            INSERT INTO con_x_data (symbol, exchange, data_path, interval)
-            VALUES (:symbol, :exchange, :data_path, :interval)
-            ON CONFLICT(symbol, exchange) DO UPDATE SET
-                data_path = EXCLUDED.data_path,
-                interval = EXCLUDED.interval
+            INSERT INTO sym_x_data (symbol, exchange, data_type, size, stt_date_loc, end_date_loc, row_count, data_status)
+            VALUES (:symbol, :exchange, :data_type, :size, :stt_date_loc, :end_date_loc, :row_count, :data_status)
+            ON CONFLICT(symbol, exchange, data_type, size) DO UPDATE SET
+                stt_date_loc = EXCLUDED.stt_date_loc,
+                end_date_loc = EXCLUDED.end_date_loc,
+                row_count = EXCLUDED.row_count,
+                data_status = EXCLUDED.data_status,
+                last_update = CURRENT_TIMESTAMP
         """;
         namedJdbcTemplate.update(sql, row);
     }
@@ -197,78 +200,7 @@ public class CollectDataRepository {
         namedJdbcTemplate.update(sql, row);
     }
 
-    public void upsertContractDetailBond(Map<String, Object> row) {
-        String sql = """
-                INSERT INTO contract_detail_bond (
-                    con_id, bond_type, coupon_type, coupon, callable,
-                    putable, convertible, maturity, issue_date,
-                    ratings, cusip, desc_append
-                ) VALUES (
-                    :con_id, :bond_type, :coupon_type, :coupon, :callable,
-                    :putable, :convertible, :maturity, :issue_date,
-                    :ratings, :cusip, :desc_append
-                )
-                ON CONFLICT(con_id)
-                DO UPDATE SET
-                    bond_type = EXCLUDED.bond_type,
-                    coupon_type = EXCLUDED.coupon_type,
-                    coupon = EXCLUDED.coupon,
-                    callable = EXCLUDED.callable,
-                    putable = EXCLUDED.putable,
-                    convertible = EXCLUDED.convertible,
-                    maturity = EXCLUDED.maturity,
-                    issue_date = EXCLUDED.issue_date,
-                    ratings = EXCLUDED.ratings,
-                    cusip = EXCLUDED.cusip,
-                    desc_append = EXCLUDED.desc_append;
-                """;
-        namedJdbcTemplate.update(sql, row);
-    }
-
-    public void upsertContractDetailFund(Map<String, Object> row) {
-        String sql = """
-                INSERT INTO contract_detail_fund (
-                    con_id, fund_name, fund_family, fund_type,
-                    fund_front_load, fund_back_load, fund_management_fee,
-                    fund_minimum_initial_purchase, fund_subsequent_minimum_purchase,
-                    fund_closed, fund_closed_for_new_investors, fund_closed_for_new_money
-                ) VALUES (
-                    :con_id, :fund_name, :fund_family, :fund_type,
-                    :fund_front_load, :fund_back_load, :fund_management_fee,
-                    :fund_minimum_initial_purchase, :fund_subsequent_minimum_purchase,
-                    :fund_closed, :fund_closed_for_new_investors, :fund_closed_for_new_money
-                )
-                ON CONFLICT(con_id)
-                DO UPDATE SET
-                    fund_name = EXCLUDED.fund_name,
-                    fund_family = EXCLUDED.fund_family,
-                    fund_type = EXCLUDED.fund_type,
-                    fund_front_load = EXCLUDED.fund_front_load,
-                    fund_back_load = EXCLUDED.fund_back_load,
-                    fund_management_fee = EXCLUDED.fund_management_fee,
-                    fund_minimum_initial_purchase = EXCLUDED.fund_minimum_initial_purchase,
-                    fund_subsequent_minimum_purchase = EXCLUDED.fund_subsequent_minimum_purchase,
-                    fund_closed = EXCLUDED.fund_closed,
-                    fund_closed_for_new_investors = EXCLUDED.fund_closed_for_new_investors,
-                    fund_closed_for_new_money = EXCLUDED.fund_closed_for_new_money;
-                """;
-        namedJdbcTemplate.update(sql, row);
-    }
-
-    public void upsertContractDetailFX(Map<String, Object> row) {
-        String sql = """
-                INSERT INTO contract_detail_fx (
-                    con_id, under_symbol, under_sec_type
-                ) VALUES (
-                    :con_id, :under_symbol, :under_sec_type
-                )
-                ON CONFLICT(con_id)
-                DO UPDATE SET
-                    under_symbol = EXCLUDED.under_symbol,
-                    under_sec_type = EXCLUDED.under_sec_type;
-                """;
-        namedJdbcTemplate.update(sql, row);
-    }
+    // Bond, Fund, FX 관련 메서드는 현재 필요하지 않으므로 제거됨
 
     public void upsertContractDetailIndex(Map<String, Object> row) {
         String sql = """

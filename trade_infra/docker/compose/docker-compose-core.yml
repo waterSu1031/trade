@@ -1,31 +1,33 @@
 version: '3.8'
 
+# Core services only - No monitoring stack
+# For personal automated trading system
+
 services:
-  # PostgreSQL Database with TimescaleDB Extension
+  # PostgreSQL Database
   db:
-    image: timescale/timescaledb:latest-pg15
+    image: postgres:15-alpine
     container_name: trade_db
     restart: unless-stopped
     environment:
+      POSTGRES_DB: trade_db
       POSTGRES_USER: ${DB_USER:-freeksj}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-Lsld1501!}
-      POSTGRES_MULTIPLE_DATABASES: trade_db,data_db
     ports:
       - "5432:5432"
     volumes:
       - ../../volumes/postgresql:/var/lib/postgresql/data
       - ../../configs/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ../../scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - trade_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-freeksj}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-freeksj} -d trade_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Redis Cache (optional, for future use)
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: trade_redis
@@ -52,13 +54,11 @@ services:
     container_name: trade_backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://trade_user:${DB_PASSWORD:-trade_pass}@db:5432/trade_db
+      DATABASE_URL: postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@db:5432/trade_db
       REDIS_URL: redis://redis:6379
       IB_HOST: ${IB_HOST:-host.docker.internal}
-      IB_PORT: ${IB_PORT:-4002}
-      IB_CLIENT_ID_DASHBOARD: ${IB_CLIENT_ID_DASHBOARD:-10}
-      IB_USERNAME: ${IB_USERNAME:-}
-      IB_PASSWORD: ${IB_PASSWORD:-}
+      IB_PORT: ${IB_PORT:-4001}
+      IB_CLIENT_ID: ${IB_CLIENT_ID:-1}
       ENVIRONMENT: ${ENVIRONMENT:-production}
       DEBUG: ${DEBUG:-false}
     ports:
@@ -71,9 +71,9 @@ services:
     networks:
       - trade_network
     volumes:
-      - ../../../trade_dashboard/trading.db:/app/trading.db  # For SQLite compatibility
+      - ../../../trade_dashboard/trading.db:/app/trading.db
     extra_hosts:
-      - "host.docker.internal:host-gateway"  # For accessing IBKR on host
+      - "host.docker.internal:host-gateway"
 
   # Frontend
   frontend:
@@ -107,44 +107,12 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ../proxy/nginx/ssl:/etc/nginx/ssl:ro  # SSL certificates if needed
+      - ../proxy/nginx/ssl:/etc/nginx/ssl:ro
     depends_on:
       - backend
       - frontend
     networks:
       - trade_network
-
-  # ML Model Serving with TorchServe (Optional - uncomment if using PatchTST)
-  # ml-serving:
-  #   build:
-  #     context: ../ml-serving
-  #     dockerfile: Dockerfile
-  #   container_name: trade_ml_serving
-  #   restart: unless-stopped
-  #   environment:
-  #     - JAVA_OPTS=-Xmx2g -Xms1g
-  #   ports:
-  #     - "${ML_INFERENCE_PORT:-8080}:8080"    # Inference API
-  #     - "${ML_MANAGEMENT_PORT:-8081}:8081"   # Management API
-  #     - "${ML_METRICS_PORT:-8082}:8082"      # Metrics API
-  #   volumes:
-  #     - ../../volumes/models:/home/model-server/model-store:ro
-  #     - ../../configs/ml/config.properties:/home/model-server/config.properties:ro
-  #   networks:
-  #     - trade_network
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #   # Uncomment for GPU support
-  #   # deploy:
-  #   #   resources:
-  #   #     reservations:
-  #   #       devices:
-  #   #         - driver: nvidia
-  #   #           count: 1
-  #   #           capabilities: [gpu]
 
   # Docker Management UI
   portainer:
@@ -153,7 +121,7 @@ services:
     restart: unless-stopped
     ports:
       - "9000:9000"
-      - "8001:8000"  # Portainer uses 8000 internally, map to 8001 to avoid conflict
+      - "8001:8000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

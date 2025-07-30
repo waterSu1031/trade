@@ -187,5 +187,10 @@ public class ClientIBKR extends ListenIBKR {
     public boolean isConnected() {
         return connected.get() && client.isConnected();
     }
+    
+    // Getter for clientId
+    public int getClientId() {
+        return clientId;
+    }
 
 }

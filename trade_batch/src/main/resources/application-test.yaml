@@ -39,6 +39,8 @@ logging:
 
 ibkr:
   api:
-    host: "localhost"
-    port: 4002
-    clientId: 30
+    host: ${IB_HOST:localhost}
+    port: ${IB_PORT:4002}
+    clientId: ${IB_CLIENT_ID_BATCH:30}
+    username: ${IB_USERNAME:}
+    password: ${IB_PASSWORD:}

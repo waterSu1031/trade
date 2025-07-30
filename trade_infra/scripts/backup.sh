@@ -9,8 +9,11 @@ BACKUP_DIR="$INFRA_DIR/volumes/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 # Load environment variables
-if [ -f "$INFRA_DIR/configs/.env" ]; then
-    export $(cat "$INFRA_DIR/configs/.env" | grep -v '^#' | xargs)
+PROJECT_ROOT="$(dirname "$(dirname "$INFRA_DIR")")"
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    export $(cat "$PROJECT_ROOT/.env" | grep -v '^#' | xargs)
+elif [ -f "$PROJECT_ROOT/.env.production" ]; then
+    export $(cat "$PROJECT_ROOT/.env.production" | grep -v '^#' | xargs)
 fi
 
 # Default values

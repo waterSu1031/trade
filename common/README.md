@@ -2,13 +2,12 @@
 
 This directory contains shared resources for all microservices in the Trade project.
 
+**Note**: Environment variables are managed at the project root level (`.env`, `.env.development`, `.env.production`)
+
 ## Directory Structure
 
 ```
 common/
-├── libs/            # Shared libraries
-│   ├── python/     # Python common modules
-│   └── java/       # Java common libraries
 ├── templates/       # Project templates
 │   ├── api-spec/   # API specification templates
 │   └── docs/       # Documentation templates
@@ -19,12 +18,6 @@ common/
 ```
 
 ## Usage
-
-### Shared Libraries
-
-Place common code that is used across multiple services here:
-- Python: Utility functions, data models, API clients
-- Java: Common interfaces, utility classes, shared DTOs
 
 ### Templates
 

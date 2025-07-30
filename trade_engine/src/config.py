@@ -34,9 +34,9 @@ class Config:
     # PostgreSQL 연결 설정
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5432))
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "TRADE")
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "password")
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "trade_db")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "freeksj")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "Lsld1501!")
     
     # PostgreSQL URL 생성
     DATABASE_URL: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
@@ -55,9 +55,11 @@ class Config:
 
 
     # ▶️ IBKR 접속 정보
-    IBKR_HOST: str = os.getenv("IBKR_HOST", "localhost")
-    IBKR_PORT: int = int(os.getenv("IBKR_PORT", 4002))
-    IBKR_CLIENT_ID: int = int(os.getenv("IBKR_CLIENT_ID", 20))
+    IBKR_HOST: str = os.getenv("IB_HOST", "localhost")
+    IBKR_PORT: int = int(os.getenv("IB_PORT", 4002))
+    IBKR_CLIENT_ID: int = int(os.getenv("IB_CLIENT_ID_ENGINE", 20))
+    IBKR_USERNAME: str = os.getenv("IB_USERNAME", "")
+    IBKR_PASSWORD: str = os.getenv("IB_PASSWORD", "")
 
     # WEB_HOST: str = os.getenv("WEB_HOST", "localhost")
     # WEB_PORT: int = int(os.getenv("WEB_PORT", 8000))

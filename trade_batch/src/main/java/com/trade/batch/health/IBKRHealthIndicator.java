@@ -20,13 +20,13 @@ public class IBKRHealthIndicator implements HealthIndicator {
             if (isConnected) {
                 return Health.up()
                     .withDetail("status", "Connected")
-                    .withDetail("clientId", 30)
+                    .withDetail("clientId", clientIBKR.getClientId())
                     .withDetail("service", "trade_batch")
                     .build();
             } else {
                 return Health.down()
                     .withDetail("status", "Disconnected")
-                    .withDetail("clientId", 30)
+                    .withDetail("clientId", clientIBKR.getClientId())
                     .withDetail("service", "trade_batch")
                     .withDetail("message", "IB Gateway connection is not active")
                     .build();

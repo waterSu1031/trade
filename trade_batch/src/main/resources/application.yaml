@@ -40,15 +40,15 @@ spring:
 #      ddl-auto: update
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/trade_master
+    url: jdbc:postgresql://localhost:5432/trade_db
     driver-class-name: org.postgresql.Driver
-    username: trade_user
-    password: trade_pass_2024
+    username: freeksj
+    password: Lsld1501!
     trade:
-      url: jdbc:postgresql://localhost:5432/trade_master
+      url: jdbc:postgresql://localhost:5432/trade_db
       driver-class-name: org.postgresql.Driver
-      username: trade_user
-      password: trade_pass_2024
+      username: freeksj
+      password: Lsld1501!
       hikari:
         maximum-pool-size: 10
         minimum-idle: 5
@@ -56,26 +56,26 @@ spring:
         idle-timeout: 600000
         max-lifetime: 1800000
     data-us:
-      url: jdbc:postgresql://localhost:5432/trade_master
+      url: jdbc:postgresql://localhost:5432/trade_db
       driver-class-name: org.postgresql.Driver
-      username: trade_user
-      password: trade_pass_2024
+      username: freeksj
+      password: Lsld1501!
       hikari:
         maximum-pool-size: 10
         minimum-idle: 5
     data-cn:
-      url: jdbc:postgresql://localhost:5432/trade_master
+      url: jdbc:postgresql://localhost:5432/trade_db
       driver-class-name: org.postgresql.Driver
-      username: trade_user
-      password: trade_pass_2024
+      username: freeksj
+      password: Lsld1501!
       hikari:
         maximum-pool-size: 10
         minimum-idle: 5
     data-eu:
-      url: jdbc:postgresql://localhost:5432/trade_master
+      url: jdbc:postgresql://localhost:5432/trade_db
       driver-class-name: org.postgresql.Driver
-      username: trade_user
-      password: trade_pass_2024
+      username: freeksj
+      password: Lsld1501!
       hikari:
         maximum-pool-size: 10
         minimum-idle: 5
@@ -109,6 +109,8 @@ management:
 
 ibkr:
   api:
-    host: "localhost"
-    port: 4001
-    clientId: 30
+    host: ${IB_HOST:localhost}
+    port: ${IB_PORT:4001}
+    clientId: ${IB_CLIENT_ID_BATCH:30}
+    username: ${IB_USERNAME:}
+    password: ${IB_PASSWORD:}

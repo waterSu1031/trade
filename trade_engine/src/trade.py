@@ -22,8 +22,9 @@ class Trade:
         self.strategy_name = "ExampleStrategy"
 
         self.host = config.IBKR_HOST
-        self.port = 4002 if self.real_mode == 'paper' else 4001
-        self.ibkr_conn = ConnectIBKR(self.host, self.port)
+        self.port = config.IBKR_PORT
+        self.client_id = config.IBKR_CLIENT_ID
+        self.ibkr_conn = ConnectIBKR(self.host, self.port, self.client_id)
         self.ib = self.ibkr_conn.get_client()
 
         self.broker = BrokerIBKR(self.ib)
@@ -37,8 +38,9 @@ class Trade:
         self.stt_dt = stt_dt
         self.end_dt = end_dt
         self.strategy_name = strategy
-        self.port = 4002 if real_mode == 'paper' else 4001
-        self.ibkr_conn = ConnectIBKR(self.host, self.port)
+        self.port = config.IBKR_PORT
+        self.client_id = config.IBKR_CLIENT_ID
+        self.ibkr_conn = ConnectIBKR(self.host, self.port, self.client_id)
         self.ib = self.ibkr_conn.get_client()
         self.broker = BrokerIBKR(self.ib)
         self.run()

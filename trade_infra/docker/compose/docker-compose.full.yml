@@ -11,8 +11,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: trade_db
-      POSTGRES_USER: trade_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-trade_pass}
+      POSTGRES_USER: ${DB_USER:-freeksj}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Lsld1501!}
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +22,7 @@ services:
     networks:
       - trade_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U trade_user -d trade_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-freeksj} -d trade_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -116,61 +116,67 @@ services:
 
   # Prometheus
   prometheus:
-    build:
-      context: ../monitoring/prometheus
-      dockerfile: Dockerfile
+    image: prom/prometheus:latest
     container_name: trade_prometheus
     restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - trade_network
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
 
   # Grafana
   grafana:
-    build:
-      context: ../monitoring/grafana
-      dockerfile: Dockerfile
+    image: grafana/grafana:latest
     container_name: trade_grafana
     restart: unless-stopped
     ports:
       - "3001:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - trade_network
     depends_on:
       - prometheus
+      - loki
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-freeksj}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-Lsld1501!}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
 
-  # Elasticsearch
-  elasticsearch:
-    build:
-      context: ../logging/elasticsearch
-      dockerfile: Dockerfile
-    container_name: trade_elasticsearch
+  # Loki (Log aggregation)
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: trade_loki
     restart: unless-stopped
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "3100:3100"
     volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
+      - loki_data:/loki
     networks:
       - trade_network
-    environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # Promtail (Log collector)
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: trade_promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ../monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+    networks:
+      - trade_network
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
 
   # PostgreSQL Exporter for Prometheus
   postgres-exporter:
@@ -178,7 +184,7 @@ services:
     container_name: trade_postgres_exporter
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: "postgresql://trade_user:${DB_PASSWORD:-trade_pass}@db:5432/trade_db?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@db:5432/trade_db?sslmode=disable"
     ports:
       - "9187:9187"
     networks:
@@ -223,7 +229,7 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-  elasticsearch_data:
+  loki_data:
     driver: local
 
 networks:

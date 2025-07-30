@@ -13,8 +13,7 @@ trade_infra/
 │   ├── proxy/          # Reverse proxy (Nginx)
 │   ├── cache/          # Caching layer (Redis)
 │   ├── database/       # Database (PostgreSQL)
-│   ├── monitoring/     # Monitoring stack (Prometheus, Grafana)
-│   └── logging/        # Logging stack (Elasticsearch)
+│   └── monitoring/     # Monitoring stack (Prometheus, Loki, Grafana)
 ├── scripts/            # Utility scripts
 ├── configs/            # Configuration files
 └── README.md          # This file

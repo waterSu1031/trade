@@ -52,7 +52,7 @@ public class CollectDataService {
         contract_detail = commonService.removeMPrefix(contract_detail);
         contract = commonService.removeMPrefix(contract);
 
-        repository.insertExcXCon(contract);
+        repository.insertExcXSym(contract);
         repository.upsertContract(contract);
         repository.upsertContractDetail(contract_detail);
 
@@ -62,18 +62,20 @@ public class CollectDataService {
             repository.upsertContractDetailFuture(contract_detail);
         }else if("OPT".equals(contract.get("sec_type"))){
             repository.upsertContractDetailOption(contract_detail);
-        }else if("BOND".equals(contract.get("sec_type"))){
-            repository.upsertContractDetailBond(contract_detail);
-        }else if("FUND".equals(contract.get("sec_type"))){
-            repository.upsertContractDetailFund(contract_detail);
         }else if("CASH".equals(contract.get("sec_type"))){
-            repository.upsertContractDetailFX(contract_detail);
+            // FX 처리는 현재 필요하지 않음
         }else if("IND".equals(contract.get("sec_type"))){
             repository.upsertContractDetailIndex(contract_detail);
         }
 
-        contract.put("interval", "1m");
-        repository.upsertConXData(contract);
+        // sym_x_data 테이블 업데이트를 위한 필드 추가
+        contract.put("data_type", "time");
+        contract.put("size", 1.0);
+        contract.put("stt_date_loc", new java.sql.Timestamp(System.currentTimeMillis()));
+        contract.put("end_date_loc", new java.sql.Timestamp(System.currentTimeMillis()));
+        contract.put("row_count", 0L);
+        contract.put("data_status", "ACTIVE");
+        repository.upsertSymXData(contract);
     }
 
     // --------------------------------------------------------------------------------------
