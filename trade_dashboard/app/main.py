@@ -44,8 +44,11 @@ app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(realtime.router, prefix="/api/realtime", tags=["realtime"])
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Create database tables (only if they don't exist)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Database tables initialization: {e}")
 
 @app.get("/")
 async def root():

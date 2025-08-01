@@ -10,17 +10,20 @@ class IBKRService:
     def __init__(self):
         self.ib = IB()
         self.connected = False
+        self.host = settings.ib_host
+        self.port = settings.ib_port
+        self.client_id = settings.ib_client_id
         
     async def connect(self) -> bool:
         """Connect to IBKR Gateway or TWS"""
         try:
             await self.ib.connectAsync(
-                host=settings.ib_host,
-                port=settings.ib_port,
-                clientId=settings.ib_client_id
+                host=self.host,
+                port=self.port,
+                clientId=self.client_id
             )
             self.connected = True
-            logger.info(f"Connected to IBKR at {settings.ib_host}:{settings.ib_port}")
+            logger.info(f"Connected to IBKR at {self.host}:{self.port} with client ID {self.client_id}")
             return True
         except Exception as e:
             logger.error(f"Failed to connect to IBKR: {e}")
@@ -33,6 +36,12 @@ class IBKRService:
             self.ib.disconnect()
             self.connected = False
             logger.info("Disconnected from IBKR")
+    
+    async def reconnect(self) -> bool:
+        """Reconnect to IBKR"""
+        await self.disconnect()
+        await asyncio.sleep(1)
+        return await self.connect()
     
     def is_connected(self) -> bool:
         """Check if connected to IBKR"""

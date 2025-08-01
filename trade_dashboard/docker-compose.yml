@@ -1,24 +1,29 @@
 version: '3.8'
 
-services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: trade_dashboard_db
-    restart: always
-    environment:
-      POSTGRES_USER: trade_user
-      POSTGRES_PASSWORD: trade_password
-      POSTGRES_DB: trade_dashboard
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U trade_user -d trade_dashboard"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+# Trade Dashboard 서비스 전용 Docker Compose 파일
 
-volumes:
-  postgres_data:
-    name: trade_dashboard_postgres_data
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trade_dashboard
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-trade_db}
+      REDIS_URL: redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+      IB_HOST: ${IB_HOST:-host.docker.internal}
+      IB_PORT: ${IB_PORT:-4002}
+      IB_CLIENT_ID_DASHBOARD: ${IB_CLIENT_ID_DASHBOARD:-10}
+      IB_USERNAME: ${IB_USERNAME:-}
+      IB_PASSWORD: ${IB_PASSWORD:-}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DEBUG: ${DEBUG:-false}
+      BACKEND_PORT: ${BACKEND_PORT:-8000}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./trading.db:/app/trading.db  # For SQLite compatibility
+      - ./logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
