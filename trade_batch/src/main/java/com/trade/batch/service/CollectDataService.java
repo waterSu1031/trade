@@ -52,7 +52,7 @@ public class CollectDataService {
         contract_detail = commonService.removeMPrefix(contract_detail);
         contract = commonService.removeMPrefix(contract);
 
-        repository.insertExcXSym(contract);
+        repository.insertExcXCon(contract);
         repository.upsertContract(contract);
         repository.upsertContractDetail(contract_detail);
 
@@ -68,14 +68,16 @@ public class CollectDataService {
             repository.upsertContractDetailIndex(contract_detail);
         }
 
-        // sym_x_data 테이블 업데이트를 위한 필드 추가
+        // con_x_data 테이블 업데이트를 위한 필드 추가
         contract.put("data_type", "time");
         contract.put("size", 1.0);
         contract.put("stt_date_loc", new java.sql.Timestamp(System.currentTimeMillis()));
         contract.put("end_date_loc", new java.sql.Timestamp(System.currentTimeMillis()));
         contract.put("row_count", 0L);
         contract.put("data_status", "ACTIVE");
-        repository.upsertSymXData(contract);
+        // contract 필드로 매핑
+        contract.put("contract", contract.get("symbol"));
+        repository.upsertConXData(contract);
     }
 
     // --------------------------------------------------------------------------------------

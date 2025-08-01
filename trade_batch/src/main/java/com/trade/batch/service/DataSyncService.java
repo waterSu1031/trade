@@ -450,6 +450,6 @@ public class DataSyncService {
     }
 
     private void incrementSyncCount(String table, int count) {
-        syncStatistics.merge(table, count, (old, inc) -> ((Integer) old) + inc);
+        syncStatistics.merge(table, count, (old, inc) -> (Integer) old + (Integer) inc);
     }
 }

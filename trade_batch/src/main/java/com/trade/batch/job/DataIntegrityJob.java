@@ -336,8 +336,8 @@ public class DataIntegrityJob {
             
             @Override
             public ExitStatus afterStep(@NonNull StepExecution stepExecution) {
-                int errorCount = (int) stepExecution.getExecutionContext()
-                    .getOrDefault("position_errors", 0);
+                int errorCount = stepExecution.getExecutionContext()
+                    .getInt("position_errors", 0);
                 
                 if (errorCount > 0) {
                     log.warn("🔸 [포지션 정합성 검증] 완료 - {} 개 오류 수정", errorCount);

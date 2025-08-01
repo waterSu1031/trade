@@ -20,7 +20,7 @@ import java.util.*;
 public class DataIntegrityService {
 
     private final JdbcTemplate jdbcTemplate;
-    private final Map<String, Object> verificationSummary = new HashMap<>();
+    private final Map<String, Integer> verificationSummary = new HashMap<>();
 
     /**
      * 현재 포지션 목록 조회
@@ -395,7 +395,7 @@ public class DataIntegrityService {
      * 검증 요약 조회
      */
     public Map<String, Object> getVerificationSummary() {
-        return new HashMap<>(verificationSummary);
+        return new HashMap<String, Object>(verificationSummary);
     }
 
     /**
@@ -406,6 +406,6 @@ public class DataIntegrityService {
     }
 
     private void incrementSummaryCount(String key, int count) {
-        verificationSummary.merge(key, count, (old, inc) -> ((Integer) old) + inc);
+        verificationSummary.merge(key, count, Integer::sum);
     }
 }

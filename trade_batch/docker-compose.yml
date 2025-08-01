@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Trade Batch 서비스 전용 Docker Compose 파일
+
+services:
+  batch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trade_batch
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-trade_db}
+      DB_USER: ${DB_USER:-freeksj}
+      DB_PASSWORD: ${DB_PASSWORD:-Lsld1501!}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      IB_HOST: ${IB_HOST:-host.docker.internal}
+      IB_PORT: ${IB_PORT:-4002}
+      IB_CLIENT_ID_BATCH: ${IB_CLIENT_ID_BATCH:-20}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

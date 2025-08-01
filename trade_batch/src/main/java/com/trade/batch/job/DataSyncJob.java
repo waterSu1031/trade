@@ -20,6 +20,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -207,7 +208,7 @@ public class DataSyncJob {
     public ItemWriter<Map<String, Object>> priceDataWriter() {
         return priceDataList -> {
             // 배치로 DuckDB에 저장
-            dataSyncService.bulkInsertPriceData(priceDataList);
+            dataSyncService.bulkInsertPriceData(new ArrayList<>(priceDataList.getItems()));
             log.debug("가격 데이터 {} 건 동기화 완료", priceDataList.size());
         };
     }

@@ -25,9 +25,9 @@ public class CollectDataRepository {
     public List<Map<String, Object>> selectSymbolFromAddCSV() {
         String sql = """
             SELECT sfc.*
-              FROM symbol_from_csv sfc
+              FROM symbol_import sfc
              WHERE NOT EXISTS (
-                   SELECT 1 FROM contract s
+                   SELECT 1 FROM contracts s
                     WHERE s.exchange = sfc.exchange
                       AND s.symbol = sfc.symbol
                       AND s.sec_type = sfc.sec_type
@@ -40,24 +40,24 @@ public class CollectDataRepository {
     public List<Map<String, Object>> selectSymbolFromFullCSV() {
         String sql = """
             SELECT sfc.*
-              FROM symbol_from_csv sfc
+              FROM symbol_import sfc
         """;
         return namedJdbcTemplate.queryForList(sql, Map.of());
     }
 
-    public void insertExcXSym(Map<String, Object> row) {
+    public void insertExcXCon(Map<String, Object> row) {
         String sql = """
-            INSERT INTO exc_x_sym (exchange, symbol)
+            INSERT INTO exc_x_con (exchange, symbol)
             VALUES (:exchange, :symbol)
         """;
         namedJdbcTemplate.update(sql, row);
     }
 
-    public void upsertSymXData(Map<String, Object> row) {
+    public void upsertConXData(Map<String, Object> row) {
         String sql = """
-            INSERT INTO sym_x_data (symbol, exchange, data_type, size, stt_date_loc, end_date_loc, row_count, data_status)
-            VALUES (:symbol, :exchange, :data_type, :size, :stt_date_loc, :end_date_loc, :row_count, :data_status)
-            ON CONFLICT(symbol, exchange, data_type, size) DO UPDATE SET
+            INSERT INTO con_x_data (contract, exchange, data_type, size, stt_date_loc, end_date_loc, row_count, data_status)
+            VALUES (:contract, :exchange, :data_type, :size, :stt_date_loc, :end_date_loc, :row_count, :data_status)
+            ON CONFLICT(contract, exchange, data_type, size) DO UPDATE SET
                 stt_date_loc = EXCLUDED.stt_date_loc,
                 end_date_loc = EXCLUDED.end_date_loc,
                 row_count = EXCLUDED.row_count,
@@ -69,7 +69,7 @@ public class CollectDataRepository {
 
     public void upsertContract(Map<String, Object> row) {
         String sql = """
-            INSERT INTO contract (
+            INSERT INTO contracts (
                 con_id, symbol, sec_type, last_trade_date_or_contract_month, last_trade_date,
                 strike, right_, multiplier, exchange, primary_exch, currency,
                 local_symbol, trading_class, sec_id_type, sec_id,
@@ -109,7 +109,7 @@ public class CollectDataRepository {
 
     public void upsertContractDetail(Map<String, Object> row) {
         String sql = """
-                INSERT INTO contract_detail (
+                INSERT INTO contract_details (
                     conid, market_name, min_tick, price_magnifier,
                     order_types, valid_exchanges, long_name,
                     time_zone_id, trading_hours, liquid_hours,
@@ -139,7 +139,7 @@ public class CollectDataRepository {
 
     public void upsertContractDetailStock(Map<String, Object> row) {
         String sql = """
-                INSERT INTO contract_detail_stock (
+                INSERT INTO contract_details_stock (
                     con_id, industry, category, subcategory, stock_type
                 ) VALUES (
                     :con_id, :industry, :category, :subcategory, :stock_type
@@ -156,7 +156,7 @@ public class CollectDataRepository {
 
     public void upsertContractDetailFuture(Map<String, Object> row) {
         String sql = """
-                INSERT INTO contract_detail_future (
+                INSERT INTO contract_details_future (
                     con_id, contract_month, real_expiration_date, last_trade_time,
                     ev_rule, ev_multiplier, under_conid, under_symbol, under_sec_type
                 ) VALUES (
@@ -179,7 +179,7 @@ public class CollectDataRepository {
 
     public void upsertContractDetailOption(Map<String, Object> row) {
         String sql = """
-                INSERT INTO contract_detail_option (
+                INSERT INTO contract_details_option (
                     con_id, contract_month, real_expiration_date, last_trade_time,
                     ev_rule, ev_multiplier, under_conid, under_symbol, under_sec_type
                 ) VALUES (
@@ -204,7 +204,7 @@ public class CollectDataRepository {
 
     public void upsertContractDetailIndex(Map<String, Object> row) {
         String sql = """
-                INSERT INTO contract_detail_index (
+                INSERT INTO contract_details_index (
                     con_id, industry, category
                 ) VALUES (
                     :con_id, :industry, :category
@@ -221,7 +221,7 @@ public class CollectDataRepository {
 
     public List<Map<String, Object>> selectFutureMonthForNext() {
         String sql = """
-                SELECT * FROM contract
+                SELECT * FROM contracts
                 WHERE sec_type = 'CONTFUT'
                 AND last_trade_date IS NOT NULL
                 AND last_trade_date <> ''
@@ -232,7 +232,7 @@ public class CollectDataRepository {
 
     public void upsertNextFutureMonth(Map<String, Object> row) {
         String sql = """
-            UPDATE contract SET
+            UPDATE contracts SET
                 crt_month_con_id = :crt_month_con_id,
                 last_trade_date = :last_trade_date
             WHERE con_id = :con_id";
@@ -263,7 +263,7 @@ public class CollectDataRepository {
         String sql = """
             UPDATE con_x_data
             SET data_status = :data_status
-            WHERE symbol = :symbol AND exchange = :exchange AND data_type = :data_type
+            WHERE contract = :contract AND exchange = :exchange AND data_type = :data_type
             """;
         namedJdbcTemplate.update(sql, row);
     }
@@ -295,7 +295,7 @@ public class CollectDataRepository {
 
 
     public List<Map<String, Object>> selectContractsForConvertVolume() {
-        String sql = "SELECT * FROM contract";
+        String sql = "SELECT * FROM contracts";
         return namedJdbcTemplate.queryForList(sql, Map.of());
     }
 
