@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { errorStore } from '$lib/stores/error';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -32,8 +33,12 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
+        const errorMessage = data.detail || data.message || `API Error: ${response.status}`;
+        if (browser) {
+          errorStore.addError(errorMessage, 'error');
+        }
         return {
-          error: data.detail || 'An error occurred',
+          error: errorMessage,
           status: response.status
         };
       }
@@ -43,8 +48,12 @@ class ApiClient {
         status: response.status
       };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Network error';
+      if (browser) {
+        errorStore.addError(`Failed to connect to ${endpoint}: ${errorMessage}`, 'error');
+      }
       return {
-        error: error instanceof Error ? error.message : 'Network error',
+        error: errorMessage,
         status: 0
       };
     }
@@ -90,7 +99,7 @@ export class WebSocketManager {
     if (!browser) return;
 
     try {
-      this.ws = new WebSocket(`${this.wsUrl}/api/ws/ws`);
+      this.ws = new WebSocket(`${this.wsUrl}/ws`);
 
       this.ws.onopen = () => {
         console.log('WebSocket connected');
@@ -115,6 +124,7 @@ export class WebSocketManager {
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
+        errorStore.addError('WebSocket connection error', 'warning');
       };
 
       this.ws.onclose = () => {
@@ -123,6 +133,7 @@ export class WebSocketManager {
       };
     } catch (error) {
       console.error('Error creating WebSocket:', error);
+      errorStore.addError('Failed to create WebSocket connection', 'error');
       this.reconnect();
     }
   }

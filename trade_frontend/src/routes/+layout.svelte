@@ -1,6 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import { page } from '$app/stores';
+  import ErrorToast from '$lib/components/ErrorToast.svelte';
 </script>
 
 <div class="min-h-screen bg-ibkr-background">
@@ -90,4 +91,7 @@
   <main class="container mx-auto px-4 py-6">
     <slot />
   </main>
+  
+  <!-- Error Toast -->
+  <ErrorToast />
 </div>

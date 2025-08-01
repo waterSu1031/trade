@@ -384,13 +384,13 @@
             <tr>
               <td class="font-medium text-ibkr-text">{position.symbol}</td>
               <td class="text-right font-mono">{position.quantity.toLocaleString()}</td>
-              <td class="text-right font-mono">${position.average_cost.toFixed(2)}</td>
+              <td class="text-right font-mono">${position.avg_cost.toFixed(2)}</td>
               <td class="text-right font-mono">${position.market_price.toFixed(2)}</td>
               <td class="text-right font-mono {position.unrealized_pnl >= 0 ? 'profit' : 'loss'}">
                 {position.unrealized_pnl >= 0 ? '+' : ''}${position.unrealized_pnl.toFixed(2)}
               </td>
               <td class="text-right font-mono {position.unrealized_pnl >= 0 ? 'profit' : 'loss'}">
-                {((position.unrealized_pnl / (position.average_cost * position.quantity)) * 100).toFixed(2)}%
+                {((position.unrealized_pnl / (position.avg_cost * position.quantity)) * 100).toFixed(2)}%
               </td>
             </tr>
           {/each}

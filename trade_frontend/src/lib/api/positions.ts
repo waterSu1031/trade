@@ -4,7 +4,7 @@ export interface Position {
   id: number;
   symbol: string;
   quantity: number;
-  average_cost: number;
+  avg_cost: number;
   market_price: number;
   market_value: number;
   unrealized_pnl: number;
@@ -19,7 +19,7 @@ export interface Position {
 export interface PositionCreate {
   symbol: string;
   quantity: number;
-  average_cost: number;
+  avg_cost: number;
   market_price?: number;
   market_value?: number;
   unrealized_pnl?: number;
