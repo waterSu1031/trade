@@ -9,15 +9,16 @@ from app.api import trades, positions, statistics, websocket, strategy, trading,
 from app.config import settings
 from app.database.database import engine, Base
 from app.services.realtime_service import realtime_service
-from common.logging import setup_logging, LogEvents
+# Setup basic logging
+import logging
+logging.basicConfig(level=logging.INFO)
 
-# Setup logging
-logger = setup_logging('trade_dashboard')
+logger = logging.getLogger('trade_dashboard')
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    logger.info(LogEvents.SERVICE_STARTED)
+    logger.info("Trade Dashboard service started")
     try:
         await websocket.startup_event()
         logger.info("WebSocket service started successfully")
@@ -25,7 +26,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"WebSocket startup failed: {e}")
     yield
     # Shutdown
-    logger.info(LogEvents.SERVICE_STOPPED)
+    logger.info("Trade Dashboard service stopped")
     await realtime_service.stop()
 
 app = FastAPI(
