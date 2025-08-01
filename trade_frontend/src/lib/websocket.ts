@@ -49,7 +49,7 @@ export class RealtimeWebSocket {
   private messageHandlers: Map<string, Array<(data: any) => void>> = new Map();
   private connectionPromise: Promise<void> | null = null;
   
-  constructor(private url: string = 'ws://localhost:8000/api/ws/ws') {}
+  constructor(private url: string = 'ws://localhost:8000/ws/ws') {}
   
   async connect(): Promise<void> {
     if (this.connectionPromise) {

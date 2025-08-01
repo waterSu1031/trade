@@ -99,7 +99,7 @@ export class WebSocketManager {
     if (!browser) return;
 
     try {
-      this.ws = new WebSocket(`${this.wsUrl}/ws`);
+      this.ws = new WebSocket(`${this.wsUrl}/ws/ws`);
 
       this.ws.onopen = () => {
         console.log('WebSocket connected');
