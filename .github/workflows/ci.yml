@@ -23,13 +23,13 @@ jobs:
         filters: |
           batch:
             - 'trade_batch/**'
-            - '_shared/libs/java/**'
+            - '_platform/schemas/**'
           dashboard:
             - 'trade_dashboard/**'
-            - '_shared/libs/python/**'
+            - '_platform/schemas/**'
           engine:
             - 'trade_engine/**'
-            - '_shared/libs/python/**'
+            - '_platform/schemas/**'
           frontend:
             - 'trade_frontend/**'
 
