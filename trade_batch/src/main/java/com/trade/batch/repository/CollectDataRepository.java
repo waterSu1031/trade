@@ -30,7 +30,7 @@ public class CollectDataRepository {
                    SELECT 1 FROM contracts s
                     WHERE s.exchange = sfc.exchange
                       AND s.symbol = sfc.symbol
-                      AND s.sec_type = sfc.sec_type
+                      AND s.sectype = sfc.sec_type
                       AND s.currency = sfc.currency
                )
         """;
@@ -70,39 +70,29 @@ public class CollectDataRepository {
     public void upsertContract(Map<String, Object> row) {
         String sql = """
             INSERT INTO contracts (
-                con_id, symbol, sec_type, last_trade_date_or_contract_month, last_trade_date,
-                strike, right_type, multiplier, exchange, primary_exchange, currency,
-                local_symbol, trading_class, sec_id_type, sec_id,
-                description, issuer_id, delta_neutral_conid,
-                include_expired, combo_legs_descrip
+                conid, symbol, sectype, lasttradedateorcontractmonth, 
+                strike, right, multiplier, exchange, primaryexchange, currency,
+                localsymbol, tradingclass, description
             ) VALUES (
-                :con_id, :symbol, :sec_type, :last_trade_date_or_contract_month, :last_trade_date,
-                :strike, :right_type, :multiplier, :exchange, :primary_exchange, :currency,
-                :local_symbol, :trading_class, :sec_id_type, :sec_id,
-                :description, :issuer_id, :delta_neutral_conid,
-                :include_expired, :combo_legs_descrip
+                :conid, :symbol, :sectype, :lasttradedateorcontractmonth,
+                :strike, :right, :multiplier, :exchange, :primaryexchange, :currency,
+                :localsymbol, :tradingclass, :description
             )
-            ON CONFLICT(con_id)
+            ON CONFLICT(conid)
             DO UPDATE SET
                 symbol = EXCLUDED.symbol,
-                sec_type = EXCLUDED.sec_type,
-                last_trade_date_or_contract_month = EXCLUDED.last_trade_date_or_contract_month,
-                last_trade_date = EXCLUDED.last_trade_date,
+                sectype = EXCLUDED.sectype,
+                lasttradedateorcontractmonth = EXCLUDED.lasttradedateorcontractmonth,
                 strike = EXCLUDED.strike,
-                right_type = EXCLUDED.right_type,
+                right = EXCLUDED.right,
                 multiplier = EXCLUDED.multiplier,
                 exchange = EXCLUDED.exchange,
-                primary_exchange = EXCLUDED.primary_exchange,
+                primaryexchange = EXCLUDED.primaryexchange,
                 currency = EXCLUDED.currency,
-                local_symbol = EXCLUDED.local_symbol,
-                trading_class = EXCLUDED.trading_class,
-                sec_id_type = EXCLUDED.sec_id_type,
-                sec_id = EXCLUDED.sec_id,
+                localsymbol = EXCLUDED.localsymbol,
+                tradingclass = EXCLUDED.tradingclass,
                 description = EXCLUDED.description,
-                issuer_id = EXCLUDED.issuer_id,
-                delta_neutral_conid = EXCLUDED.delta_neutral_conid,
-                include_expired = EXCLUDED.include_expired,
-                combo_legs_descrip = EXCLUDED.combo_legs_descrip;
+                updated_at = CURRENT_TIMESTAMP;
         """;
         namedJdbcTemplate.update(sql, row);
     }
@@ -157,22 +147,21 @@ public class CollectDataRepository {
     public void upsertContractDetailFuture(Map<String, Object> row) {
         String sql = """
                 INSERT INTO contract_details_future (
-                    con_id, contract_month, real_expiration_date, last_trade_time,
-                    ev_rule, ev_multiplier, under_conid, under_symbol, under_sec_type
+                    con_id, contract_month, last_trade_date, multiplier,
+                    ev_rule, ev_multiplier, underlying_con_id, expiry_date
                 ) VALUES (
-                    :con_id, :contract_month, :real_expiration_date, :last_trade_time,
-                    :ev_rule, :ev_multiplier, :under_conid, :under_symbol, :under_sec_type
+                    :con_id, :contract_month, :last_trade_date, :multiplier,
+                    :ev_rule, :ev_multiplier, :underlying_con_id, :expiry_date
                 )
                 ON CONFLICT(con_id)
                 DO UPDATE SET
                     contract_month = EXCLUDED.contract_month,
-                    real_expiration_date = EXCLUDED.real_expiration_date,
-                    last_trade_time = EXCLUDED.last_trade_time,
+                    last_trade_date = EXCLUDED.last_trade_date,
+                    multiplier = EXCLUDED.multiplier,
                     ev_rule = EXCLUDED.ev_rule,
                     ev_multiplier = EXCLUDED.ev_multiplier,
-                    under_conid = EXCLUDED.under_conid,
-                    under_symbol = EXCLUDED.under_symbol,
-                    under_sec_type = EXCLUDED.under_sec_type;
+                    underlying_con_id = EXCLUDED.underlying_con_id,
+                    expiry_date = EXCLUDED.expiry_date;
                 """;
         namedJdbcTemplate.update(sql, row);
     }
@@ -180,22 +169,21 @@ public class CollectDataRepository {
     public void upsertContractDetailOption(Map<String, Object> row) {
         String sql = """
                 INSERT INTO contract_details_option (
-                    con_id, contract_month, real_expiration_date, last_trade_time,
-                    ev_rule, ev_multiplier, under_conid, under_symbol, under_sec_type
+                    con_id, option_type, strike, expiry_date,
+                    multiplier, underlying_con_id, underlying_symbol, exercise_style
                 ) VALUES (
-                    :con_id, :contract_month, :real_expiration_date, :last_trade_time,
-                    :ev_rule, :ev_multiplier, :under_conid, :under_symbol, :under_sec_type
+                    :con_id, :option_type, :strike, :expiry_date,
+                    :multiplier, :underlying_con_id, :underlying_symbol, :exercise_style
                 )
                 ON CONFLICT(con_id)
                 DO UPDATE SET
-                    contract_month = EXCLUDED.contract_month,
-                    real_expiration_date = EXCLUDED.real_expiration_date,
-                    last_trade_time = EXCLUDED.last_trade_time,
-                    ev_rule = EXCLUDED.ev_rule,
-                    ev_multiplier = EXCLUDED.ev_multiplier,
-                    under_conid = EXCLUDED.under_conid,
-                    under_symbol = EXCLUDED.under_symbol,
-                    under_sec_type = EXCLUDED.under_sec_type;
+                    option_type = EXCLUDED.option_type,
+                    strike = EXCLUDED.strike,
+                    expiry_date = EXCLUDED.expiry_date,
+                    multiplier = EXCLUDED.multiplier,
+                    underlying_con_id = EXCLUDED.underlying_con_id,
+                    underlying_symbol = EXCLUDED.underlying_symbol,
+                    exercise_style = EXCLUDED.exercise_style;
                 """;
         namedJdbcTemplate.update(sql, row);
     }
@@ -222,10 +210,10 @@ public class CollectDataRepository {
     public List<Map<String, Object>> selectFutureMonthForNext() {
         String sql = """
                 SELECT * FROM contracts
-                WHERE sec_type = 'CONTFUT'
-                AND last_trade_date IS NOT NULL
-                AND last_trade_date <> ''
-                AND CURRENT_DATE BETWEEN TO_DATE(last_trade_date, 'YYYYMMDD') - INTERVAL '7 day' AND TO_DATE(last_trade_date, 'YYYYMMDD')
+                WHERE sectype = 'CONTFUT'
+                AND lasttradedateorcontractmonth IS NOT NULL
+                AND lasttradedateorcontractmonth <> ''
+                AND CURRENT_DATE BETWEEN TO_DATE(lasttradedateorcontractmonth, 'YYYYMMDD') - INTERVAL '7 day' AND TO_DATE(lasttradedateorcontractmonth, 'YYYYMMDD')
                 """;
         return namedJdbcTemplate.queryForList(sql, Map.of());
     }
@@ -233,9 +221,8 @@ public class CollectDataRepository {
     public void upsertNextFutureMonth(Map<String, Object> row) {
         String sql = """
             UPDATE contracts SET
-                crt_month_con_id = :crt_month_con_id,
-                last_trade_date = :last_trade_date
-            WHERE con_id = :con_id";
+                lasttradedateorcontractmonth = :lasttradedateorcontractmonth
+            WHERE conid = :conid
         """;
         namedJdbcTemplate.update(sql, row);
     }

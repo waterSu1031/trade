@@ -27,7 +27,16 @@ public class CommonService {
     public CommonService(CollectDataRepository repository) {
         this.repository = repository;
         loadWeekendCache(2022, 2025);
-        loadExchangeTimezoneCache();
+    }
+    
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            loadExchangeTimezoneCache();
+        } catch (Exception e) {
+            // Log error but don't fail startup
+            System.err.println("Failed to load exchange timezone cache: " + e.getMessage());
+        }
     }
 
     public int generateUniqueReqId() {
@@ -45,8 +54,8 @@ public class CommonService {
         String currency = String.valueOf(contract.get("currency"));
 
         String lastTradeDateOrContractMonth =
-                contract.containsKey("last_trade_date_or_contract_month")
-                ? String.valueOf(contract.get("last_trade_date_or_contract_month"))
+                contract.containsKey("lasttradedateorcontractmonth")
+                ? String.valueOf(contract.get("lasttradedateorcontractmonth"))
                 : null;
 
         contract_vo.symbol(symbol);

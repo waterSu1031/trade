@@ -40,22 +40,22 @@ public class BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 1 * * ?") // 매일 1시
+    @Scheduled(cron = "0 0 7 * * ?") // 매일 7시 - CME 일일 정산 후, 아시아 개장 전
     public void scheduleSetInitStructureJob() {
         runJob(setInitStructureJob, "setInitStructureJob");
     }
 
-    @Scheduled(cron = "0 0 2 * * ?") // 매일 2시
+    @Scheduled(cron = "0 30 7 * * ?") // 매일 7시 30분 - 초기 구조 설정 후 선물 월물 추가
     public void scheduleAddFutureMonthJob() {
         runJob(addFutureMonthJob, "addFutureMonthJob");
     }
 
-    @Scheduled(cron = "0 0 3 * * ?") // 매일 3시
+    @Scheduled(cron = "0 0 18 * * ?") // 매일 18시 - 아시아 마감 후, 유럽 본격 시작 전
     public void scheduleCollectTypeDataJob() {
         runJob(collectTypeDataJob, "collectTypeDataJob");
     }
 
-    @Scheduled(cron = "0 0 4 * * ?") // 매일 4시
+    @Scheduled(cron = "0 30 6 * * ?") // 매일 6시 30분 - 미국 마감 후, 아시아 개장 전
     public void scheduleTaskletJob() {
         runJob(taskletJob, "taskletJob");
     }

@@ -1,6 +1,6 @@
 
-symbol_from_csv_table_sql = """
-CREATE TABLE IF NOT EXISTS symbol_from_csv (
+symbol_import_table_sql = """
+CREATE TABLE IF NOT EXISTS symbol_import (
     sec_type TEXT,
     ibkr_symbol TEXT,
     symbol TEXT,
@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS symbol_from_csv (
 );  
 """
 
-exchange_table_sql = """
-CREATE TABLE IF NOT EXISTS exchange (
+exchanges_table_sql = """
+CREATE TABLE IF NOT EXISTS exchanges (
     exchange TEXT PRIMARY KEY,
     region TEXT,
     sec_type TEXT,
@@ -25,16 +25,16 @@ CREATE TABLE IF NOT EXISTS exchange (
 );
 """
 
-exc_x_sym_table_sql = """
-CREATE TABLE IF NOT EXISTS exc_x_sym (
+exc_x_con_table_sql = """
+CREATE TABLE IF NOT EXISTS exc_x_con (
     exchange TEXT,
     symbol TEXT,
     PRIMARY KEY (exchange, symbol)
 );
 """
 
-symbol_table_sql = """
-CREATE TABLE IF NOT EXISTS symbol (
+contracts_table_sql = """
+CREATE TABLE IF NOT EXISTS contracts (
     con_id INTEGER PRIMARY KEY,
     symbol TEXT,                -- 기본 심볼 (ex: AAPL, ES, EUR)
     exchange TEXT,              -- 기본 거래소
@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS symbol (
 );
 """
 
-sym_x_data_table_sql = """
-CREATE TABLE IF NOT EXISTS sym_x_data (
+con_x_data_table_sql = """
+CREATE TABLE IF NOT EXISTS con_x_data (
     con_id INTEGER PRIMARY KEY,
     symbol TEXT NOT NULL,
     interval TEXT,                 -- 예 '5s,1m,1R' (쉼표 구분)
@@ -92,8 +92,8 @@ CREATE TABLE IF NOT EXISTS symbol_interval (
 
 # -------------------------------------------------------------------------------------------------------------------
 
-insert_exchange = """
-    INSERT INTO exchange(exchange, region, asset_type, aws_coverage, timezone, location_lat, location_lon, description) VALUES
+insert_exchanges = """
+    INSERT INTO exchanges(exchange, region, asset_type, aws_coverage, timezone, location_lat, location_lon, description) VALUES
         ('CME', 'North America', 'Various (Agriculture, Energy, Metals, Indices, Interest Rates)', 'us-east-2', 'America/Chicago', 41.883, -87.632, 'CME Group: CME, CBOT, NYMEX, COMEX 포함'),
         ('CFE', 'North America', 'Volatility, Index Futures', 'us-east-2', 'America/Chicago', 41.878, -87.631, 'CBOE Futures Exchange'),
         ('ICEUS', 'North America', 'Agriculture, Energy, Financials', 'us-east-1', 'America/New_York', 40.712, -74.006, 'ICE Futures U.S.'),
@@ -119,8 +119,8 @@ insert_exchange = """
         ('DME', 'Middle East', 'Energy Futures', 'me-central-1', 'Asia/Dubai', 25.204, 55.270, 'Dubai Mercantile Exchange'),
         ('TURDEX', 'Middle East', 'Agriculture, Financial Futures', 'eu-central-1', 'Europe/Istanbul', 41.008, 28.978, 'Turkish Derivatives Market');
 """
-insert_exc_x_sym = """
-    INSERT INTO exc_x_sym VALUES
+insert_exc_x_con = """
+    INSERT INTO exc_x_con VALUES
         ('CME', 200001),
         ('CME', 200002),
         ('CME', 200003),
@@ -133,8 +133,8 @@ insert_exc_x_sym = """
         ('HKEX', 200010);
 """
 
-insert_symbol = """
-    INSERT INTO symbol VALUES
+insert_contracts = """
+    INSERT INTO contracts VALUES
         (200001, 'ES', 'CME', 'CONTFUT', 'USD', 'ES', 'E-mini S&P 500 Continuous', 'CME', 0.25, 'ES', 'America/Chicago', 'CME', '20240625:1700-1600;', '20240625:1730-1600;', '26', 'MKT,LMT,STP', 'FUT', NULL, '50', TRUE, TRUE),
         (200002, 'NQ', 'CME', 'CONTFUT', 'USD', 'NQ', 'E-mini NASDAQ 100 Continuous', 'CME', 0.25, 'NQ', 'America/Chicago', 'CME', '20240625:1700-1600;', '20240625:1730-1600;', '26', 'MKT,LMT,STP', 'FUT', NULL, '20', TRUE, TRUE),
         (200003, 'YM', 'CME', 'CONTFUT', 'USD', 'YM', 'E-mini Dow Continuous', 'CME', 1.0, 'YM', 'America/Chicago', 'CME', '20240625:1700-1600;', '20240625:1730-1600;', '26', 'MKT,LMT,STP', 'FUT', NULL, '5', TRUE, TRUE),
@@ -147,8 +147,8 @@ insert_symbol = """
         (200010, 'HSI', 'HKEX', 'CONTFUT', 'HKD', 'HSI', 'Hang Seng Index Continuous', 'HKEX', 1.0, 'HSI', 'Asia/Hong_Kong', 'HKEX', '20240625:0915-1615;', '20240625:0930-1600;', '30', 'MKT,LMT', 'FUT', NULL, '50', TRUE, TRUE);
 """
 
-insert_symbol = """
-    INSERT INTO sym_x_data (symbol, con_id, data_path, interval, is_active, is_live) VALUES
+insert_con_x_data = """
+    INSERT INTO con_x_data (symbol, con_id, data_path, interval, is_active, is_live) VALUES
         ('ES',     200001, 'US.sqlite.ES',     '5s,1m,1R', 'Y', 'Y'),
         ('NQ',     200002, 'US.sqlite.NQ',     '5s,1m,1R', 'Y', 'Y'),
         ('YM',     200003, 'US.sqlite.YM',     '5s,1m,1R', 'Y', 'Y'),
