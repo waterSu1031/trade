@@ -1,4 +1,4 @@
-import vectorbtpro as vbt
+import vectorbt as vbt
 import pandas as pd
 
 

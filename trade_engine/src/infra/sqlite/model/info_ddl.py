@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS exchange (
 );
 """
 
-exc_x_sym_table_sql = """
-CREATE TABLE IF NOT EXISTS exc_x_sym (
+exc_x_con_table_sql = """
+CREATE TABLE IF NOT EXISTS exc_x_con (
     exchange TEXT,
     symbol TEXT,
     PRIMARY KEY (exchange, symbol)
@@ -58,10 +58,10 @@ CREATE TABLE IF NOT EXISTS symbol (
 );
 """
 
-sym_x_data_table_sql = """
-CREATE TABLE IF NOT EXISTS sym_x_data (
+con_x_data_table_sql = """
+CREATE TABLE IF NOT EXISTS con_x_data (
     con_id INTEGER PRIMARY KEY,
-    symbol TEXT NOT NULL,
+    contract TEXT NOT NULL,
     -- database TEXT,                 -- 예: 'CN, US, EU'
     interval TEXT,                 -- 예: '5s,1m,1R' (쉼표 구분)
     -- 만기일자
@@ -122,8 +122,8 @@ insert_exchange = """
         ('DME', 'Middle East', 'Energy Futures', 'me-central-1', 'Asia/Dubai', 25.204, 55.270, 'Dubai Mercantile Exchange'),
         ('TURDEX', 'Middle East', 'Agriculture, Financial Futures', 'eu-central-1', 'Europe/Istanbul', 41.008, 28.978, 'Turkish Derivatives Market');
 """
-insert_exc_x_sym = """
-    INSERT INTO exc_x_sym VALUES
+insert_exc_x_con = """
+    INSERT INTO exc_x_con VALUES
         ('CME', 200001),
         ('CME', 200002),
         ('CME', 200003),
@@ -150,8 +150,8 @@ insert_symbol = """
         (200010, 'HSI', 'HKEX', 'CONTFUT', 'HKD', 'HSI', 'Hang Seng Index Continuous', 'HKEX', 1.0, 'HSI', 'Asia/Hong_Kong', 'HKEX', '20240625:0915-1615;', '20240625:0930-1600;', '30', 'MKT,LMT', 'FUT', NULL, '50', TRUE, TRUE);
 """
 
-insert_symbol = """
-    INSERT INTO sym_x_data (symbol, con_id, data_path, interval, is_active, is_live) VALUES
+insert_con_x_data = """
+    INSERT INTO con_x_data (contract, con_id, data_path, interval, is_active, is_live) VALUES
         ('ES',     200001, 'US.sqlite.ES',     '5s,1m,1R', 'Y', 'Y'),
         ('NQ',     200002, 'US.sqlite.NQ',     '5s,1m,1R', 'Y', 'Y'),
         ('YM',     200003, 'US.sqlite.YM',     '5s,1m,1R', 'Y', 'Y'),

@@ -1,0 +1,11 @@
+# Core dependencies for testing (without ta-lib)
+ib-insync==0.9.86
+pandas==2.3.0
+numpy==2.2.6
+python-dotenv==1.1.0
+psycopg2-binary==2.9.10
+SQLAlchemy==2.0.41
+duckdb==1.3.0
+duckdb_engine==0.17.0
+redis==6.2.0
+requests==2.32.3

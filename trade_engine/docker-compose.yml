@@ -1,0 +1,27 @@
+version: '3.8'
+
+# Trade Engine 서비스 전용 Docker Compose 파일
+
+services:
+  engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trade_engine
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-trade_db}
+      REDIS_URL: redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+      IB_HOST: ${IB_HOST:-host.docker.internal}
+      IB_PORT: ${IB_PORT:-4002}
+      IB_CLIENT_ID_ENGINE: ${IB_CLIENT_ID_ENGINE:-30}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DEBUG: ${DEBUG:-false}
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./strategies:/app/strategies:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
