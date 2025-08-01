@@ -3,19 +3,24 @@ version: '3.8'
 services:
   # Development database
   db:
-    image: postgres:15-alpine
+    image: timescale/timescaledb:latest-pg15
     container_name: trade_db_dev
     restart: unless-stopped
     environment:
-      POSTGRES_DB: trade_db
-      POSTGRES_USER: trade_user
-      POSTGRES_PASSWORD: trade_pass
+      POSTGRES_USER: ${DB_USER:-freeksj}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Lsld1501!}
+      POSTGRES_MULTIPLE_DATABASES: trade_db,data_db
     ports:
       - "5433:5432"  # Changed to avoid conflict
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     networks:
       - trade_network_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-freeksj}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Redis Cache (Development)
   redis:
@@ -35,7 +40,7 @@ services:
     container_name: trade_backend_dev
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://trade_user:trade_pass@db:5432/trade_db
+      DATABASE_URL: postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@db:5432/trade_db
       REDIS_URL: redis://redis:6379
       IB_HOST: ${IB_HOST:-host.docker.internal}
       IB_PORT: ${IB_PORT:-4002}

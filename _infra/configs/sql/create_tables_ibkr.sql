@@ -48,17 +48,21 @@ CREATE TABLE IF NOT EXISTS contract_details (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Exchanges 테이블
+-- Exchanges 테이블 (복수형, 확장된 필드)
 CREATE TABLE IF NOT EXISTS exchanges (
-    exchange VARCHAR(16) PRIMARY KEY,
-    region VARCHAR(32),
-    timezone VARCHAR(64),
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    exchange VARCHAR(32) PRIMARY KEY,
+    country VARCHAR(16),
+    sec_type VARCHAR(8),
+    aws_coverage VARCHAR(12),
+    timezone VARCHAR(24),
+    location_lat REAL,
+    location_lon REAL,
+    description VARCHAR(100),
+    symbol_cnt INTEGER
 );
 
--- Exchange-Symbol 매핑 테이블
-CREATE TABLE IF NOT EXISTS exc_x_sym (
+-- Exchange-Contract 매핑 테이블
+CREATE TABLE IF NOT EXISTS exc_x_con (
     exchange VARCHAR(16) NOT NULL,
     symbol VARCHAR(16) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
@@ -66,9 +70,9 @@ CREATE TABLE IF NOT EXISTS exc_x_sym (
     PRIMARY KEY (exchange, symbol)
 );
 
--- Symbol-DataSource 매핑 테이블
-CREATE TABLE IF NOT EXISTS sym_x_data (
-    symbol VARCHAR(16) NOT NULL,
+-- Contract-DataSource 매핑 테이블
+CREATE TABLE IF NOT EXISTS con_x_data (
+    contract VARCHAR(16) NOT NULL,
     data_source VARCHAR(32) NOT NULL,   -- 'time', 'range', 'volume'
     is_active BOOLEAN DEFAULT TRUE,
     priority INTEGER DEFAULT 1,
@@ -347,6 +351,66 @@ CREATE TABLE IF NOT EXISTS daily_statistics (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (date, secType)
+);
+
+-- =====================================================
+-- 5-1. 증권 타입별 Contract Detail 테이블
+-- =====================================================
+
+-- Stock Contract Details
+CREATE TABLE IF NOT EXISTS contract_details_stock (
+    con_id INTEGER PRIMARY KEY REFERENCES contracts(conId),
+    isin VARCHAR(12),
+    cusip VARCHAR(9),
+    ratings VARCHAR(50),
+    desc_append VARCHAR(256),
+    bond_type VARCHAR(50),
+    coupon_type VARCHAR(50),
+    callable BOOLEAN,
+    putable BOOLEAN,
+    coupon DECIMAL(10,4),
+    convertible BOOLEAN,
+    maturity DATE,
+    issue_date DATE,
+    next_option_date DATE,
+    next_option_type VARCHAR(10),
+    next_option_partial BOOLEAN,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Future Contract Details
+CREATE TABLE IF NOT EXISTS contract_details_future (
+    con_id INTEGER PRIMARY KEY REFERENCES contracts(conId),
+    contract_month VARCHAR(8),
+    last_trade_date DATE,
+    multiplier INTEGER,
+    ev_rule VARCHAR(50),
+    ev_multiplier DECIMAL(10,4),
+    underlying_con_id INTEGER,
+    expiry_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Option Contract Details
+CREATE TABLE IF NOT EXISTS contract_details_option (
+    con_id INTEGER PRIMARY KEY REFERENCES contracts(conId),
+    option_type VARCHAR(4),  -- CALL, PUT
+    strike DECIMAL(15,4),
+    expiry_date DATE,
+    multiplier INTEGER,
+    underlying_con_id INTEGER,
+    underlying_symbol VARCHAR(16),
+    exercise_style VARCHAR(10),  -- AMERICAN, EUROPEAN
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index Contract Details
+CREATE TABLE IF NOT EXISTS contract_details_index (
+    con_id INTEGER PRIMARY KEY REFERENCES contracts(conId),
+    index_family VARCHAR(50),
+    index_type VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================

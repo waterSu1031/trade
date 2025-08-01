@@ -94,11 +94,11 @@ clean-frontend:
 # Infrastructure management
 start-infra:
 	@echo "Starting infrastructure services..."
-	cd trade_infra/docker/compose && docker-compose up -d
+	cd _infra/docker/compose && docker-compose up -d
 
 stop-infra:
 	@echo "Stopping infrastructure services..."
-	cd trade_infra/docker/compose && docker-compose down
+	cd _infra/docker/compose && docker-compose down
 
 # Development mode - start all services
 dev: start-infra
@@ -113,7 +113,7 @@ dev: start-infra
 
 # Service-specific logs
 logs-infra:
-	cd trade_infra/docker/compose && docker-compose logs -f
+	cd _infra/docker/compose && docker-compose logs -f
 
 logs-batch:
 	tail -f trade_batch/logs/trade-batch.log
@@ -127,29 +127,29 @@ logs-engine:
 # Docker operations
 docker-build:
 	@echo "Building Docker images for all services..."
-	cd trade_infra/docker/compose && docker-compose -f docker-compose.full.yml build
+	cd _infra/docker/compose && docker-compose -f docker-compose.full.yml build
 
 docker-up:
 	@echo "Starting all services with Docker..."
-	cd trade_infra/docker/compose && docker-compose -f docker-compose.full.yml up -d
+	cd _infra/docker/compose && docker-compose -f docker-compose.full.yml up -d
 
 docker-down:
 	@echo "Stopping all Docker services..."
-	cd trade_infra/docker/compose && docker-compose -f docker-compose.full.yml down
+	cd _infra/docker/compose && docker-compose -f docker-compose.full.yml down
 
 # Database operations
 db-migrate:
 	@echo "Running database migrations..."
-	cd trade_infra && ./scripts/migrate.sh
+	cd _infra && ./scripts/migrate.sh
 
 db-backup:
 	@echo "Backing up database..."
-	cd trade_infra && ./scripts/backup.sh
+	cd _infra && ./scripts/backup.sh
 
 db-restore:
 	@echo "Restoring database..."
 	@echo "Usage: make db-restore BACKUP_FILE=backup_20240101.sql"
-	cd trade_infra && ./scripts/restore.sh $(BACKUP_FILE)
+	cd _infra && ./scripts/restore.sh $(BACKUP_FILE)
 
 # Utility commands
 check-ports:
@@ -169,7 +169,7 @@ health-check:
 # Git operations
 git-status:
 	@echo "Checking git status for all projects..."
-	@for dir in trade_batch trade_dashboard trade_engine trade_frontend trade_infra common; do \
+	@for dir in trade_batch trade_dashboard trade_engine trade_frontend _infra _shared; do \
 		echo "\n=== $$dir ==="; \
 		git -C . status --porcelain | grep "$$dir/" || echo "✓ Clean"; \
 	done
