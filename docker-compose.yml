@@ -1,0 +1,85 @@
+version: '3.8'
+
+# 통합 실행을 위한 메인 Docker Compose 파일
+# 사용법: docker-compose up -d
+
+services:
+  # =====================================================
+  # 인프라 서비스들 (from _infra/docker-compose.base.yml)
+  # =====================================================
+  db:
+    extends:
+      file: ./_infra/docker-compose.base.yml
+      service: db
+    networks:
+      - trade-network
+
+  redis:
+    extends:
+      file: ./_infra/docker-compose.base.yml
+      service: redis
+    networks:
+      - trade-network
+
+  nginx:
+    extends:
+      file: ./_infra/docker-compose.base.yml
+      service: nginx
+    networks:
+      - trade-network
+    depends_on:
+      - dashboard
+      - frontend
+
+  # =====================================================
+  # 마이크로서비스들
+  # =====================================================
+  batch:
+    extends:
+      file: ./trade_batch/docker-compose.yml
+      service: batch
+    networks:
+      - trade-network
+    depends_on:
+      - db
+      - redis
+
+  dashboard:
+    extends:
+      file: ./trade_dashboard/docker-compose.yml
+      service: dashboard
+    networks:
+      - trade-network
+    depends_on:
+      - db
+      - redis
+
+  engine:
+    extends:
+      file: ./trade_engine/docker-compose.yml
+      service: engine
+    networks:
+      - trade-network
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    extends:
+      file: ./trade_frontend/docker-compose.yml
+      service: frontend
+    networks:
+      - trade-network
+    depends_on:
+      - dashboard
+
+networks:
+  trade-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  batch-logs:
+  dashboard-logs:
+  engine-logs:
