@@ -1,10 +1,15 @@
+import sys
+sys.path.append('/home/freeksj/Workspace_Rule/trade')
+
 from ib_insync import IB, Stock, Contract, Trade, Position
 from typing import List, Optional
 import asyncio
 import logging
 from app.config import settings
+from common.logging import setup_logging, LogEvents
+from common.error_handling import retry_on_connection_error, IBKRConnectionError, ErrorHandler
 
-logger = logging.getLogger(__name__)
+logger = setup_logging('trade_dashboard.ibkr_service')
 
 class IBKRService:
     def __init__(self):
@@ -14,6 +19,7 @@ class IBKRService:
         self.port = settings.ib_port
         self.client_id = settings.ib_client_id
         
+    @retry_on_connection_error(max_attempts=3, delay=2.0, exceptions=(Exception,))
     async def connect(self) -> bool:
         """Connect to IBKR Gateway or TWS"""
         try:
@@ -23,11 +29,11 @@ class IBKRService:
                 clientId=self.client_id
             )
             self.connected = True
-            logger.info(f"Connected to IBKR at {self.host}:{self.port} with client ID {self.client_id}")
+            logger.info(LogEvents.IBKR_CONNECTION_SUCCESS)
             return True
         except Exception as e:
-            logger.error(f"Failed to connect to IBKR: {e}")
             self.connected = False
+            ErrorHandler.handle_ibkr_connection_error(e, logger)
             return False
     
     async def disconnect(self):

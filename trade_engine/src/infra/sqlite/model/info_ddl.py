@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS symbol_from_csv (
 );  
 """
 
-exchange_table_sql = """
-CREATE TABLE IF NOT EXISTS exchange (
+exchanges_table_sql = """
+CREATE TABLE IF NOT EXISTS exchanges (
     exchange TEXT PRIMARY KEY,
     region TEXT,
     sec_type TEXT,
@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS exc_x_con (
 );
 """
 
-symbol_table_sql = """
-CREATE TABLE IF NOT EXISTS symbol (
+contracts_table_sql = """
+CREATE TABLE IF NOT EXISTS contracts (
     con_id INTEGER PRIMARY KEY,
     symbol TEXT,                -- 기본 심볼 (ex: AAPL, ES, EUR)
     exchange TEXT,              -- 기본 거래소
@@ -42,8 +42,9 @@ CREATE TABLE IF NOT EXISTS symbol (
     local_symbol TEXT,          -- 로컬 마켓에서 쓰는 심볼
     last_trade_date TEXT,       -- 선물 만기일 (YYYYMM 또는 YYYYMMDD, STK/CASH는 NULL)
     multiplier TEXT,            -- 계약 승수 (선물만 의미 있음)
+    right_type TEXT,            -- 옵션 권리 구분 (C/P)
 
-    long_name TEXT,             -- 종목 전체 이름
+    desc TEXT,                  -- 종목 설명
     market_name TEXT,           -- 거래소 표시용 이름
     min_tick DOUBLE,            -- 최소 호가 단위
     trading_class TEXT,         -- 거래 클래스 (옵션 등 구분)
@@ -95,8 +96,8 @@ CREATE TABLE IF NOT EXISTS sample_insert_sql (
 
 # -------------------------------------------------------------------------------------------------------------------
 
-insert_exchange = """
-    INSERT INTO exchange(exchange, region, asset_type, aws_coverage, timezone, location_lat, location_lon, description) VALUES
+insert_exchanges = """
+    INSERT INTO exchanges(exchange, region, asset_type, aws_coverage, timezone, location_lat, location_lon, description) VALUES
         ('CME', 'North America', 'Various (Agriculture, Energy, Metals, Indices, Interest Rates)', 'us-east-2', 'America/Chicago', 41.883, -87.632, 'CME Group: CME, CBOT, NYMEX, COMEX 포함'),
         ('CFE', 'North America', 'Volatility, Index Futures', 'us-east-2', 'America/Chicago', 41.878, -87.631, 'CBOE Futures Exchange'),
         ('ICEUS', 'North America', 'Agriculture, Energy, Financials', 'us-east-1', 'America/New_York', 40.712, -74.006, 'ICE Futures U.S.'),
@@ -136,8 +137,8 @@ insert_exc_x_con = """
         ('HKEX', 200010);
 """
 
-insert_symbol = """
-    INSERT INTO symbol VALUES
+insert_contracts = """
+    INSERT INTO contracts VALUES
         (200001, 'ES', 'CME', 'CONTFUT', 'USD', 'ES', 'E-mini S&P 500 Continuous', 'CME', 0.25, 'ES', 'America/Chicago', 'CME', '20240625:1700-1600;', '20240625:1730-1600;', '26', 'MKT,LMT,STP', 'FUT', NULL, '50', TRUE, TRUE),
         (200002, 'NQ', 'CME', 'CONTFUT', 'USD', 'NQ', 'E-mini NASDAQ 100 Continuous', 'CME', 0.25, 'NQ', 'America/Chicago', 'CME', '20240625:1700-1600;', '20240625:1730-1600;', '26', 'MKT,LMT,STP', 'FUT', NULL, '20', TRUE, TRUE),
         (200003, 'YM', 'CME', 'CONTFUT', 'USD', 'YM', 'E-mini Dow Continuous', 'CME', 1.0, 'YM', 'America/Chicago', 'CME', '20240625:1700-1600;', '20240625:1730-1600;', '26', 'MKT,LMT,STP', 'FUT', NULL, '5', TRUE, TRUE),

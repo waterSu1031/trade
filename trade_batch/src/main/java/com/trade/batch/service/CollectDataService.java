@@ -51,6 +51,26 @@ public class CollectDataService {
 
         contract_detail = commonService.removeMPrefix(contract_detail);
         contract = commonService.removeMPrefix(contract);
+        
+        // 필드명 표준화: right_ -> right_type, primary_exch -> primary_exchange
+        if (contract.containsKey("right_")) {
+            contract.put("right_type", contract.get("right_"));
+            contract.remove("right_");
+        }
+        if (contract.containsKey("primary_exch")) {
+            contract.put("primary_exchange", contract.get("primary_exch"));
+            contract.remove("primary_exch");
+        }
+        
+        // contract_detail 필드명 표준화: long_name -> desc, conid -> con_id
+        if (contract_detail.containsKey("long_name")) {
+            contract_detail.put("desc", contract_detail.get("long_name"));
+            contract_detail.remove("long_name");
+        }
+        if (contract_detail.containsKey("conid")) {
+            contract_detail.put("con_id", contract_detail.get("conid"));
+            contract_detail.remove("conid");
+        }
 
         repository.insertExcXCon(contract);
         repository.upsertContract(contract);

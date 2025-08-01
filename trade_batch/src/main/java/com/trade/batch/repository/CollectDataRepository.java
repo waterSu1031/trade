@@ -18,7 +18,7 @@ public class CollectDataRepository {
     }
 
     public List<Map<String, Object>> selectExchangeTimeZone() {
-        String sql = "SELECT exchange, timezone FROM exchange";
+        String sql = "SELECT exchange, timezone FROM exchanges";
         return namedJdbcTemplate.queryForList(sql, Map.of());
     }
 
@@ -71,13 +71,13 @@ public class CollectDataRepository {
         String sql = """
             INSERT INTO contracts (
                 con_id, symbol, sec_type, last_trade_date_or_contract_month, last_trade_date,
-                strike, right_, multiplier, exchange, primary_exch, currency,
+                strike, right_type, multiplier, exchange, primary_exchange, currency,
                 local_symbol, trading_class, sec_id_type, sec_id,
                 description, issuer_id, delta_neutral_conid,
                 include_expired, combo_legs_descrip
             ) VALUES (
                 :con_id, :symbol, :sec_type, :last_trade_date_or_contract_month, :last_trade_date,
-                :strike, :right_, :multiplier, :exchange, :primary_exch, :currency,
+                :strike, :right_type, :multiplier, :exchange, :primary_exchange, :currency,
                 :local_symbol, :trading_class, :sec_id_type, :sec_id,
                 :description, :issuer_id, :delta_neutral_conid,
                 :include_expired, :combo_legs_descrip
@@ -89,10 +89,10 @@ public class CollectDataRepository {
                 last_trade_date_or_contract_month = EXCLUDED.last_trade_date_or_contract_month,
                 last_trade_date = EXCLUDED.last_trade_date,
                 strike = EXCLUDED.strike,
-                right_ = EXCLUDED.right_,
+                right_type = EXCLUDED.right_type,
                 multiplier = EXCLUDED.multiplier,
                 exchange = EXCLUDED.exchange,
-                primary_exch = EXCLUDED.primary_exch,
+                primary_exchange = EXCLUDED.primary_exchange,
                 currency = EXCLUDED.currency,
                 local_symbol = EXCLUDED.local_symbol,
                 trading_class = EXCLUDED.trading_class,
@@ -110,24 +110,24 @@ public class CollectDataRepository {
     public void upsertContractDetail(Map<String, Object> row) {
         String sql = """
                 INSERT INTO contract_details (
-                    conid, market_name, min_tick, price_magnifier,
-                    order_types, valid_exchanges, long_name,
+                    con_id, market_name, min_tick, price_magnifier,
+                    order_types, valid_exchanges, desc,
                     time_zone_id, trading_hours, liquid_hours,
                     agg_group, market_rule_ids
                 ) VALUES (
-                    :conid, :market_name, :min_tick, :price_magnifier,
-                    :order_types, :valid_exchanges, :long_name,
+                    :con_id, :market_name, :min_tick, :price_magnifier,
+                    :order_types, :valid_exchanges, :desc,
                     :time_zone_id, :trading_hours, :liquid_hours,
                     :agg_group, :market_rule_ids
                 )
-                ON CONFLICT(conid)
+                ON CONFLICT(con_id)
                 DO UPDATE SET
                     market_name = EXCLUDED.market_name,
                     min_tick = EXCLUDED.min_tick,
                     price_magnifier = EXCLUDED.price_magnifier,
                     order_types = EXCLUDED.order_types,
                     valid_exchanges = EXCLUDED.valid_exchanges,
-                    long_name = EXCLUDED.long_name,
+                    desc = EXCLUDED.desc,
                     time_zone_id = EXCLUDED.time_zone_id,
                     trading_hours = EXCLUDED.trading_hours,
                     liquid_hours = EXCLUDED.liquid_hours,

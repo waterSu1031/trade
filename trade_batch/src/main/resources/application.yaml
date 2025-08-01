@@ -59,8 +59,8 @@ management:
 
 ibkr:
   api:
-    host: ${IB_HOST:localhost}
-    port: ${IB_PORT:4001}
-    clientId: ${IB_CLIENT_ID_BATCH:30}
-    username: ${IB_USERNAME:}
-    password: ${IB_PASSWORD:}
+    host: ${IBKR_HOST:localhost}
+    port: ${IBKR_PORT:4002}
+    clientId: ${IBKR_CLIENT_ID:1}
+    username: ${IBKR_USERNAME:}
+    password: ${IBKR_PASSWORD:}

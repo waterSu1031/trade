@@ -1,4 +1,7 @@
 # Test comment for monorepo structure verification - engine project
+import sys
+sys.path.append('/home/freeksj/Workspace_Rule/trade')
+
 from datetime import datetime, timedelta
 from typing import List
 from src.data.data_loader import IBKRData, target_symbols
@@ -9,6 +12,9 @@ from src.order.runner import Runner
 from src.strategies.example1_strategy import Example1Strategy
 from src.order.order_manager import OrderManager
 from src.order.broker_IBKR import BrokerIBKR
+from common.logging import setup_logging, LogEvents
+
+logger = setup_logging('trade_engine')
 
 
 class Trade:

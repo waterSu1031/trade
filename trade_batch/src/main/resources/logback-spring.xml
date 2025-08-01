@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
 
-    <!-- 1. Spring profile별 로그 경로 분리 -->
+    <!-- Spring profile별 로그 경로 및 레벨 설정 -->
     <springProfile name="prod">
-        <property name="LOG_PATH" value="/var/logs/myapp"/>
+        <property name="LOG_PATH" value="/var/logs/trade_batch"/>
+        <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"/>
     </springProfile>
     <springProfile name="dev">
         <property name="LOG_PATH" value="logs"/>
+        <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"/>
     </springProfile>
-    <property name="APP_NAME" value="myapp"/>
+    <property name="APP_NAME" value="trade_batch"/>
 
-    <!-- 2. 로그 패턴 지정 (콘솔/파일 각각) -->
-    <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS, UTC} [%thread] %-5level %logger{36} - %msg%n"/>
-    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS, UTC} [%thread] %-5level %logger{36}:%L - %msg%n"/>
+    <!-- 로그 패턴 (통일된 형식) -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{36}] %file:%line - %msg%n"/>
 
-    <!-- 3. 콘솔 로그 -->
+    <!-- 콘솔 출력 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <pattern>${LOG_PATTERN}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
 
-    <!-- 4. 일반 로그 파일(일별 분할, 최대 30일 보관) -->
+    <!-- 일반 로그 파일 (일별 분할, 30일 보관) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${APP_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -31,16 +32,16 @@
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
-            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <pattern>${LOG_PATTERN}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
 
-    <!-- 5. 에러 로그 파일(에러만 별도 저장) -->
+    <!-- 에러 로그 파일 (ERROR 레벨만) -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${APP_NAME}-error.log</file>
+        <file>${LOG_PATH}/${APP_NAME}_error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${APP_NAME}-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}_error.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -49,61 +50,32 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <pattern>${LOG_PATTERN}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
 
-    <!-- 6. 로그 레벨별 logger (예: 특정 패키지만 DEBUG) -->
-    <logger name="com.example" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </logger>
-    <!-- 7. SQL 쿼리 로그 (Hibernate 등) -->
-    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <!-- 8. 마스킹 필터(예: 개인정보 마스킹, 민감정보) -->
-    <!-- 간단한 예시(실무는 커스텀 Filter 구현 필요) -->
-    <!--
-    <turboFilter class="ch.qos.logback.classic.turbo.MatchingFilter">
-        <Name>MaskingFilter</Name>
-        <Regex>password=.*?</Regex>
-        <Replacement>password=****</Replacement>
-        <OnMatch>ACCEPT</OnMatch>
-        <OnMismatch>NEUTRAL</OnMismatch>
-    </turboFilter>
-    -->
-
-    <!-- 9. Slack/이메일 알림용 Appender (선택) -->
-    <!-- 예: Logback용 Slack appender 라이브러리 필요(실제 사용 시 의존성 추가) -->
-    <!--
-    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
-        <webhookUri>https://hooks.slack.com/services/XXX/YYY/ZZZ</webhookUri>
-        <username>logback-bot</username>
-        <iconEmoji>:warning:</iconEmoji>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>${FILE_LOG_PATTERN}</pattern>
-        </layout>
-    </appender>
-    -->
-
-    <!-- 10. AsyncAppender로 비동기 로그 처리 -->
+    <!-- 비동기 파일 로거 (성능 향상) -->
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
         <appender-ref ref="FILE"/>
     </appender>
 
-    <!-- 11. 루트 로거 설정 -->
-    <root level="INFO">
+    <!-- 외부 연결 관련 로거만 INFO 레벨로 설정 -->
+    <logger name="com.trade.batch.ibkr" level="INFO"/>
+    <logger name="com.trade.batch.repository" level="INFO"/>
+    <logger name="com.trade.batch.service.IBKRConnectionMonitor" level="INFO"/>
+    
+    <!-- 불필요한 프레임워크 로그 제한 -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    
+    <!-- 루트 로거 설정 -->
+    <root level="${LOG_LEVEL}">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
-        <!-- <appender-ref ref="SLACK"/> -->
     </root>
 
 </configuration>
