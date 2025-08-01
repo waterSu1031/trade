@@ -2,7 +2,7 @@ from typing import List, Dict
 
 
 from ib_insync import IB, util, Contract, Stock, Future
-from src.infra.sqlite.database import get_connection
+from src.infra.postgresql.database import get_connection
 
 import pandas as pd
 from datetime import datetime

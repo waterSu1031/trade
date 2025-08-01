@@ -7,8 +7,8 @@ from src.config import config
 
 # from src.db.sqlite.model.asset import stock_table_sql, futures_table_sql, cash_table_sql
 
-from src.infra.sqlite.model.info_ddl import exchange_table_sql, exc_x_sym_table_sql, symbol_table_sql, sym_x_data_table_sql
-from src.infra.sqlite.model.info_ddl import insert_exchange
+from src.infra.postgresql.model.info_ddl import exchanges_table_sql, exc_x_con_table_sql, contracts_table_sql, con_x_data_table_sql
+from src.infra.postgresql.model.info_ddl import insert_exchanges
 
 # 공통 경로
 if config.DATABASE_ACCESS == "ORM":
@@ -47,9 +47,9 @@ def create_trade_tables():
     cursor = conn_trade.cursor()
     # for sql in [stock_table_sql, futures_table_sql, cash_table_sql]:
     #     cursor.execute(sql)
-    for sql in [exchange_table_sql, exc_x_sym_table_sql, symbol_table_sql, sym_x_data_table_sql]:
+    for sql in [exchanges_table_sql, exc_x_con_table_sql, contracts_table_sql, con_x_data_table_sql]:
         cursor.execute(sql)
-    for sql in [insert_exchange]:
+    for sql in [insert_exchanges]:
         cursor.execute(sql)
     
     conn_trade.commit()

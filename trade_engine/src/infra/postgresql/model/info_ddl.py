@@ -1,6 +1,6 @@
 
-symbol_from_csv_table_sql = """
-CREATE TABLE IF NOT EXISTS symbol_from_csv (
+symbol_import_table_sql = """
+CREATE TABLE IF NOT EXISTS symbol_import (
     sec_type TEXT,
     ibkr_symbol TEXT,
     symbol TEXT,

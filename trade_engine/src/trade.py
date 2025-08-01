@@ -12,9 +12,11 @@ from src.order.runner import Runner
 from src.strategies.example1_strategy import Example1Strategy
 from src.order.order_manager import OrderManager
 from src.order.broker_IBKR import BrokerIBKR
-from common.logging import setup_logging, LogEvents
+import logging
 
-logger = setup_logging('trade_engine')
+# Setup basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('trade_engine')
 
 
 class Trade:

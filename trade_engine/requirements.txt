@@ -3,7 +3,8 @@
 
 # Trading Core
 ib-insync==0.9.86
-vectorbtpro @ git+https://github.com/polakowo/vectorbt.pro.git@f3bdf4a4b07151380a6e429a08ff53c2a4b3ef56
+# vectorbtpro @ git+https://github.com/polakowo/vectorbt.pro.git@f3bdf4a4b07151380a6e429a08ff53c2a4b3ef56
+vectorbtpro @ git+https://${VECTORBT_TOKEN}@github.com/polakowo/vectorbt.pro.git
 
 # Data Processing
 pandas==2.2.3

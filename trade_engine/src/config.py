@@ -1,19 +1,10 @@
 import os, platform
-import sys
-sys.path.append('/home/freeksj/Workspace_Rule/trade')
-
 from pathlib import Path
 from dotenv import load_dotenv
 from dataclasses import dataclass
-from common.config import CommonSettings
 
-# 운영체제에 따라 .env_dev 파일 자동 선택
-PLATFORM = platform.system()
-ENV_FILE = ""
-if PLATFORM == "Windows": ENV_FILE = ".env_dev"
-elif PLATFORM == "Linux": ENV_FILE = ".env_prod"
-
-load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ENV_FILE)
+# Load main .env file
+load_dotenv()
 
 @dataclass
 class Config:
@@ -22,28 +13,20 @@ class Config:
 
 
     # ▶️ 시스템 환경
-    ENV_MODE: str = os.getenv("ENV_MODE", "DEV")
-    ENV_FILE: str = ENV_FILE
+    ENV_MODE: str = os.getenv("ENVIRONMENT", "development")
 
     # # 📁 Base Path 정의
     ROOT_DIR = Path(__file__).resolve().parent.parent  # 프로젝트 루트
-    # SRC_DIR = ROOT_DIR / "src"
-    # TRADING_APP_DIR = SRC_DIR / "_trading_app"
-    # DASHBOARD_APP_DIR = SRC_DIR / "_dashboard_app"
-    #
-    # # 📁 Source Path 정의
-    # TEMPLATE_DIR = DASHBOARD_APP_DIR / "templates"
-    # STATIC_DIR = DASHBOARD_APP_DIR / "static"
     
-    # PostgreSQL 연결 설정 (공통 설정 사용)
-    POSTGRES_HOST: str = CommonSettings.DB_HOST
-    POSTGRES_PORT: int = CommonSettings.DB_PORT
-    POSTGRES_DB: str = CommonSettings.DB_NAME
-    POSTGRES_USER: str = CommonSettings.DB_USER
-    POSTGRES_PASSWORD: str = CommonSettings.DB_PASSWORD
+    # PostgreSQL 연결 설정
+    POSTGRES_HOST: str = os.getenv("DB_HOST", "localhost")
+    POSTGRES_PORT: int = int(os.getenv("DB_PORT", "5432"))
+    POSTGRES_DB: str = os.getenv("DB_NAME", "trade_db")
+    POSTGRES_USER: str = os.getenv("DB_USER", "freeksj")
+    POSTGRES_PASSWORD: str = os.getenv("DB_PASSWORD", "Lsld1501!")
     
     # PostgreSQL URL 생성
-    DATABASE_URL: str = CommonSettings.get_database_url()
+    DATABASE_URL: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
     # 📁 Infra Path 정의
     STORAGE_DIR = ROOT_DIR / "storage"
@@ -58,10 +41,10 @@ class Config:
     TRADE_REAL = "paper"    # paper/live
 
 
-    # ▶️ IBKR 접속 정보 (공통 설정 사용)
-    IBKR_HOST: str = CommonSettings.IBKR_HOST
-    IBKR_PORT: int = CommonSettings.IBKR_PORT
-    IBKR_CLIENT_ID: int = CommonSettings.get_client_id('trade_engine')
+    # ▶️ IBKR 접속 정보
+    IBKR_HOST: str = os.getenv("IBKR_HOST", "localhost")
+    IBKR_PORT: int = int(os.getenv("IBKR_PORT", "4002"))
+    IBKR_CLIENT_ID: int = 3  # trade_engine client ID
     IBKR_USERNAME: str = os.getenv("IBKR_USERNAME", "")
     IBKR_PASSWORD: str = os.getenv("IBKR_PASSWORD", "")
 
