@@ -3,6 +3,13 @@ version: '3.8'
 # 인프라 서비스들만 포함하는 기본 Docker Compose 파일
 # 이 파일은 다른 docker-compose 파일에서 extends로 참조됩니다
 
+# Named volumes 정의 (Docker가 자동으로 권한 관리)
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
 services:
   # PostgreSQL Database with TimescaleDB Extension
   db:
@@ -16,7 +23,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./volumes/postgresql:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./configs/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
@@ -34,7 +41,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./volumes/redis:/data
+      - redis-data:/data
       - ./configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: redis-server /usr/local/etc/redis/redis.conf
     healthcheck:

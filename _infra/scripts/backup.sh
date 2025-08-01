@@ -5,7 +5,8 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$(dirname "$SCRIPT_DIR")"
-BACKUP_DIR="$INFRA_DIR/volumes/backups"
+# Using local directory for backups (not in Docker volume)
+BACKUP_DIR="$INFRA_DIR/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 # Load environment variables
