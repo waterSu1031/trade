@@ -41,7 +41,7 @@ docker volume rm redis-data
 
 ```bash
 # 백업 스크립트 실행
-cd _infra
+cd _platform/infra
 ./scripts/backup.sh
 
 # 수동 PostgreSQL 백업
@@ -56,7 +56,7 @@ docker cp trade_redis:/data/dump.rdb ./redis_backup.rdb
 
 ```bash
 # 복원 스크립트 실행
-cd _infra
+cd _platform/infra
 ./scripts/restore.sh backup_20240101.sql.gz
 
 # 수동 PostgreSQL 복원
@@ -84,7 +84,7 @@ cp .env.example .env
 docker-compose up -d
 
 # 4. 데이터베이스 초기화 (필요시)
-docker exec -i trade_db psql -U freeksj < _infra/configs/sql/schema.sql
+docker exec -i trade_db psql -U freeksj < _platform/infra/configs/sql/deployment/schema.sql
 ```
 
 ### 기존 데이터 마이그레이션

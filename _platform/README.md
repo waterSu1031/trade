@@ -1,6 +1,6 @@
 # Trade System Platform
 
-이 디렉토리는 Trade System의 모든 플랫폼 관련 리소스를 포함합니다.
+이 디렉토리는 Trade System의 인프라 및 문서 관련 리소스를 포함합니다.
 
 ## 디렉토리 구조
 
@@ -10,90 +10,71 @@ _platform/
 │   ├── docker/     # Docker 관련 설정
 │   ├── configs/    # 시스템 설정 파일
 │   ├── scripts/    # 운영 스크립트
-│   └── volumes/    # 데이터 볼륨 (Git 제외)
+│   └── docker-compose.base.yml
 │
-├── docs/           # 프로젝트 문서
-│   ├── API_DOCUMENTATION.md
-│   ├── INFRASTRUCTURE.md
-│   ├── OPERATIONS.md
-│   └── ...
-│
-├── schemas/        # 공통 스키마 정의
-│   ├── database/   # DB 스키마
-│   ├── api/        # API 스펙
-│   └── events/     # 이벤트 스키마
-│
-├── templates/      # 프로젝트 템플릿
-│   ├── api-spec/   # API 명세 템플릿
-│   └── docs/       # 문서 템플릿
-│
-└── tools/          # 개발 도구
-    ├── git-hooks/  # Git 훅
-    └── linters/    # 코드 검사 도구
+└── docs/           # 프로젝트 문서
+    ├── API_DOCUMENTATION.md
+    ├── INFRASTRUCTURE.md
+    ├── OPERATIONS.md
+    └── ...
 ```
 
 ## 주요 구성 요소
 
 ### 1. Infrastructure (infra/)
-- Docker Compose 설정
-- PostgreSQL, Redis 설정
-- 백업/복원 스크립트
-- 모니터링 설정
+- **Docker 설정**: PostgreSQL, Redis, Nginx 컨테이너 구성
+- **설정 파일**: 데이터베이스, 캐시, ML 모델 서빙 설정
+- **운영 스크립트**: 백업/복원, 배포, 초기화 스크립트
+- **SQL 스키마**: 데이터베이스 테이블 정의 및 마이그레이션
 
 ### 2. Documentation (docs/)
-- 시스템 아키텍처 문서
-- API 문서
-- 운영 가이드
-- 개발 가이드
-
-### 3. Schemas (schemas/)
-- 데이터베이스 스키마 정의
-- API 인터페이스 정의
-- 이벤트 스키마 정의
-
-### 4. Templates (templates/)
-- 새 서비스 추가 시 사용할 템플릿
-- 문서 작성 템플릿
-
-### 5. Tools (tools/)
-- 개발 생산성 도구
-- 코드 품질 관리 도구
+- **INFRASTRUCTURE.md**: 시스템 아키텍처 및 인프라 구성
+- **API_DOCUMENTATION.md**: API 엔드포인트 및 사용법
+- **OPERATIONS.md**: 운영 및 모니터링 가이드
+- **DATABASE_FOREIGN_KEYS.md**: 데이터베이스 관계 정의
+- **PORT_CONFIGURATION.md**: 서비스별 포트 설정
 
 ## 사용 방법
 
 ### 인프라 관리
 ```bash
-# 인프라 시작
-make start-infra
+# PostgreSQL과 Redis 시작
+docker-compose -f docker-compose.yml up -d db redis
 
-# 인프라 중지
-make stop-infra
+# 데이터베이스 초기화
+docker exec -i trade_db psql -U freeksj -d trade_db < _platform/infra/configs/sql/deployment/schema.sql
 
-# 데이터베이스 백업
-make db-backup
+# trades 테이블 생성 (Dashboard용)
+docker exec -i trade_db psql -U freeksj -d trade_db < _platform/infra/configs/sql/deployment/create_trades_table.sql
 
-# 데이터베이스 복원
-make db-restore BACKUP_FILE=backup.sql
+# 백업 실행
+cd _platform/infra
+./scripts/backup.sh
+
+# 복원 실행
+./scripts/restore.sh backup_20240101.sql.gz
 ```
 
-### 문서 접근
-모든 프로젝트 문서는 `docs/` 디렉토리에서 찾을 수 있습니다.
+### SQL 파일 구조
+- **deployment/**: 배포 시 필요한 스키마 파일
+- **maintenance/**: 운영 중 유지보수 스크립트
+- **development/**: 개발용 샘플 데이터
 
-### 스키마 사용
-공통 스키마는 각 서비스에서 import하여 사용합니다:
-```python
-from _platform.schemas.database import UserSchema
-```
+### Docker 구성
+- **docker-compose.base.yml**: 인프라 서비스 정의
+- **docker/proxy/**: Nginx 리버스 프록시 설정
+- **docker/monitoring/**: 모니터링 도구 설정 (Grafana, Prometheus)
 
 ## 관리 지침
 
-1. **인프라 변경**: infra/ 하위의 설정 변경 시 모든 서비스에 영향을 줄 수 있으므로 주의
-2. **스키마 변경**: schemas/ 변경 시 관련된 모든 서비스 업데이트 필요
-3. **문서 업데이트**: 시스템 변경 시 관련 문서도 함께 업데이트
+1. **인프라 변경**: docker-compose.base.yml 수정 시 모든 서비스 재시작 필요
+2. **설정 변경**: configs/ 하위 파일 변경 시 해당 서비스만 재시작
+3. **SQL 실행**: 모든 SQL 파일은 수동 실행 필요 (자동 실행 안됨)
+4. **문서 업데이트**: 시스템 변경 시 관련 문서 즉시 업데이트
 
-## 기여 방법
+## 주의사항
 
-1. 새로운 도구나 템플릿 추가 시 적절한 디렉토리에 배치
-2. 문서는 Markdown 형식으로 작성
-3. 스크립트는 실행 권한 설정 (`chmod +x`)
-4. 변경사항은 PR을 통해 리뷰 후 병합
+- Named volumes 사용으로 데이터는 Docker가 관리
+- 백업은 정기적으로 수행하고 외부 저장소에 보관
+- SQL 파일 실행 전 반드시 백업 수행
+- production 환경에서는 drop_all_tables.sql 사용 금지

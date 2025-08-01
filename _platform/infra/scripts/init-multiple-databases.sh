@@ -24,9 +24,3 @@ if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
 EOSQL
 fi
 
-# Create analyze_db for DuckDB connection reference
-echo "Creating analyze_db for reference"
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-    CREATE DATABASE analyze_db;
-    GRANT ALL PRIVILEGES ON DATABASE analyze_db TO $POSTGRES_USER;
-EOSQL
