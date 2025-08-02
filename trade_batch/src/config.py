@@ -1,26 +1,18 @@
 import os
-from pydantic_settings import BaseSettings
+from trade_common.config import BaseSettings
 from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    # Database
-    database_url: str = "postgresql://freeksj:freeksj@localhost:5432/trade"
+    """배치 서비스 설정 - trade-common의 BaseSettings를 상속"""
     
-    # Redis
-    redis_url: str = "redis://localhost:6379"
+    # Batch 전용 설정
+    symbol_csv_path: str = "./data/symbols.csv"
+    batch_size: int = 100
+    cleanup_days: int = 30
     
-    # IBKR
-    ibkr_host: str = "localhost"
-    ibkr_port: int = 4002
+    # IBKR client ID override for batch
     ibkr_client_id: int = 2
-    
-    # Environment
-    environment: str = "development"
-    log_level: str = "DEBUG"
-    
-    class Config:
-        env_file = ".env"
 
 
 @lru_cache()

@@ -1,7 +1,7 @@
 from ib_insync import IB, Contract, Stock, Future, Option, Forex, Index
 from typing import Dict, List, Any, Optional
 import logging
-from .converters import ibkr_to_dict
+from trade_common.ibkr.converters import ibkr_to_dict
 import asyncio
 
 logger = logging.getLogger(__name__)
