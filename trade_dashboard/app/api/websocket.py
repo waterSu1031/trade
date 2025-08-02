@@ -82,7 +82,7 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@router.websocket("/ws")
+@router.websocket("")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     

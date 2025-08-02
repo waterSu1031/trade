@@ -238,6 +238,29 @@
             {runningJobs.has('collectTypeDataJob') ? '실행 중...' : '실행'}
           </IBKRButton>
         </IBKRCard>
+        
+        <IBKRCard>
+          <h3 slot="title" class="text-lg font-semibold">
+            🕐 거래시간 업데이트
+          </h3>
+          <p class="text-sm text-base-content/70 mb-4">
+            IBKR에서 거래시간을 업데이트합니다.
+          </p>
+          <IBKRButton
+            onClick={async () => {
+              try {
+                const result = await batchApi.updateTradingHours();
+                alert(result.message);
+              } catch (e) {
+                alert('거래시간 업데이트 실패');
+              }
+            }}
+            variant="secondary"
+            class="w-full"
+          >
+            업데이트
+          </IBKRButton>
+        </IBKRCard>
       </div>
 
       <!-- 시스템 상태 -->

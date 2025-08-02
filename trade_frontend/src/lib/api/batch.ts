@@ -117,53 +117,15 @@ export const batchApi = {
     return response.data;
   },
 
-  // 스케줄 관리 (프론트엔드에서 표시용)
+  // 스케줄 관리 - 백엔드에서 실제 스케줄 정보 조회
   getScheduledJobs: async (): Promise<JobSchedule[]> => {
-    // 스케줄 정보는 BatchScheduler.java에 하드코딩되어 있으므로
-    // 프론트엔드에서 정의하여 표시
-    return [
-      {
-        jobName: 'setInitStructureJob',
-        description: '계약 구조 초기화',
-        cronExpression: '0 0 1 * * ?',
-        enabled: true
-      },
-      {
-        jobName: 'addFutureMonthJob',
-        description: '선물 월물 갱신',
-        cronExpression: '0 0 1 1 * ?',
-        enabled: true
-      },
-      {
-        jobName: 'collectTypeDataJob-US',
-        description: '미국 시장 데이터 수집',
-        cronExpression: '0 0 6 * * ?',
-        enabled: true
-      },
-      {
-        jobName: 'collectTypeDataJob-EU',
-        description: '유럽 시장 데이터 수집',
-        cronExpression: '0 0 2 * * ?',
-        enabled: true
-      },
-      {
-        jobName: 'collectTypeDataJob-ASIA',
-        description: '아시아 시장 데이터 수집',
-        cronExpression: '0 30 16 * * ?',
-        enabled: true
-      },
-      {
-        jobName: 'retryFailedCollections',
-        description: '실패 데이터 재시도',
-        cronExpression: '0 30 * * * ?',
-        enabled: true
-      },
-      {
-        jobName: 'dailyQualityReport',
-        description: '일일 품질 리포트',
-        cronExpression: '0 0 8 * * ?',
-        enabled: true
-      }
-    ];
+    const response = await batchApiClient.get('/api/batch/scheduled-jobs');
+    return response.data;
+  },
+  
+  // 거래시간 업데이트
+  updateTradingHours: async (): Promise<any> => {
+    const response = await batchApiClient.post('/api/batch/update-trading-hours');
+    return response.data;
   }
 };
