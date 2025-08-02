@@ -1,0 +1,64 @@
+version: '3.8'
+
+# 인프라 서비스들만 포함하는 기본 Docker Compose 파일
+# 이 파일은 다른 docker-compose 파일에서 extends로 참조됩니다
+
+# Named volumes 정의 (Docker가 자동으로 권한 관리)
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+services:
+  # PostgreSQL Database with TimescaleDB Extension
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: trade_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-freeksj}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Lsld1501!}
+      POSTGRES_MULTIPLE_DATABASES: trade,data_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./configs/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-freeksj}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: trade_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx Reverse Proxy
+  nginx:
+    build:
+      context: ./docker/proxy/nginx
+      dockerfile: Dockerfile
+    container_name: trade_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/proxy/nginx/ssl:/etc/nginx/ssl:ro
