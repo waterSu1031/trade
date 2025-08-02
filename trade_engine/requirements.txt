@@ -3,48 +3,26 @@
 
 # Trading Core
 ib-insync==0.9.86
-# vectorbtpro @ git+https://github.com/polakowo/vectorbt.pro.git@f3bdf4a4b07151380a6e429a08ff53c2a4b3ef56
-vectorbtpro @ git+https://${VECTORBT_TOKEN}@github.com/polakowo/vectorbt.pro.git
 
 # Data Processing
-pandas==2.2.3
-numpy==2.1.3
-scipy==1.14.1
-scikit-learn==1.7.0
-numba==0.61.2
+pandas==2.1.4
+numpy==1.26.4
 
 # Database
 sqlalchemy==2.0.36
 psycopg2-binary==2.9.10
-duckdb==1.3.0
 
 # Technical Analysis
-ta-lib==0.6.3
-pyportfolioopt==1.5.6
-QuantStats==0.0.64
-
-# Backtesting & Optimization
-optuna==4.3.0
-hyperopt==0.2.7
-
-# Visualization
-matplotlib==3.10.3
-plotly==5.24.1
-seaborn==0.13.2
+# ta-lib==0.4.25  # Disabled for Docker build
 
 # Configuration
 python-dotenv==1.0.1
-pydantic==2.10.5
+pydantic==2.5.2
 
 # API
-fastapi==0.115.5
-uvicorn==0.34.0
+fastapi==0.104.1
+uvicorn==0.24.0
 
 # Utilities
-schedule==1.2.2
 redis==5.2.1
 requests==2.32.3
-websockets==14.2
-
-# Testing
-pytest==8.3.5

@@ -1,10 +1,10 @@
 import os
-from trade_common.config import BaseSettings
+from tradelib.config import BaseSettings
 from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    """배치 서비스 설정 - trade-common의 BaseSettings를 상속"""
+    """배치 서비스 설정 - trade_common의 BaseSettings를 상속"""
     
     # Batch 전용 설정
     symbol_csv_path: str = "./data/symbols.csv"
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     cleanup_days: int = 30
     
     # IBKR client ID override for batch
-    ibkr_client_id: int = 2
+    ibkr_client_id: int = 3  # CLIENT_ID_BATCH
 
 
 @lru_cache()

@@ -46,7 +46,7 @@ RUN npm ci --omit=dev && \
 # SvelteKit builds to .svelte-kit and static files
 COPY --from=builder --chown=nodejs:nodejs /app/.svelte-kit ./.svelte-kit
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/static ./static 2>/dev/null || true
+COPY --from=builder --chown=nodejs:nodejs /app/static ./static
 
 # Create build directory for adapter-node
 RUN mkdir -p build && chown -R nodejs:nodejs build

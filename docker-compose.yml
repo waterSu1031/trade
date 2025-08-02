@@ -5,25 +5,25 @@ version: '3.8'
 
 services:
   # =====================================================
-  # 인프라 서비스들 (from _platform/infra/docker-compose.base.yml)
+  # 인프라 서비스들 (from infra/infra/docker-compose.base.yml)
   # =====================================================
   db:
     extends:
-      file: ./_platform/infra/docker-compose.base.yml
+      file: ./infra/infra/docker-compose.base.yml
       service: db
     networks:
       - trade-network
 
   redis:
     extends:
-      file: ./_platform/infra/docker-compose.base.yml
+      file: ./infra/infra/docker-compose.base.yml
       service: redis
     networks:
       - trade-network
 
   nginx:
     extends:
-      file: ./_platform/infra/docker-compose.base.yml
+      file: ./infra/infra/docker-compose.base.yml
       service: nginx
     networks:
       - trade-network

@@ -10,11 +10,11 @@ services:
     container_name: trade_dashboard
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-trade_db}
+      DATABASE_URL: postgresql://${DB_USER:-freeksj}:${DB_PASSWORD:-Lsld1501!}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-trade}
       REDIS_URL: redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
       IB_HOST: ${IB_HOST:-host.docker.internal}
       IB_PORT: ${IB_PORT:-4002}
-      IB_CLIENT_ID_DASHBOARD: ${IB_CLIENT_ID_DASHBOARD:-10}
+      IB_CLIENT_ID_DASHBOARD: ${IB_CLIENT_ID_DASHBOARD:-1}
       IB_USERNAME: ${IB_USERNAME:-}
       IB_PASSWORD: ${IB_PASSWORD:-}
       ENVIRONMENT: ${ENVIRONMENT:-production}

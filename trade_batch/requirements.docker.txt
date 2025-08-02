@@ -7,5 +7,3 @@ pandas==2.1.4
 cachetools==5.3.2
 pyyaml==6.0.1
 pydantic==2.5.2
-# common-py 로컬 개발 시
--e ../libs/common-py

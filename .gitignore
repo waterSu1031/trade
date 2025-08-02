@@ -114,3 +114,7 @@ docker-*-test.log
 new-docker-*-test.log
 trade_infra/volumes/
 _infra/volumes/
+# Virtual environments
+trade_batch/.venv/
+**/venv/
+**/.venv/

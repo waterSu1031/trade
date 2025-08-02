@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
-COPY requirements.txt .
+COPY trade_dashboard/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --user -r requirements.txt
@@ -31,8 +31,19 @@ RUN useradd -m -u 1001 appuser
 # Copy installed packages from builder
 COPY --from=builder /root/.local /home/appuser/.local
 
+# Fix ownership
+RUN chown -R appuser:appuser /home/appuser/.local
+
+# Copy trade_common
+COPY --chown=appuser:appuser trade_common /app/trade_common
+
+# Install trade_common as user
+USER appuser
+RUN cd /app/trade_common && pip install --user -e .
+USER root
+
 # Copy application code
-COPY --chown=appuser:appuser . .
+COPY --chown=appuser:appuser trade_dashboard/. .
 
 # Switch to non-root user
 USER appuser
