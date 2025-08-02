@@ -1,46 +1,25 @@
-FROM maven:3.9-eclipse-temurin-17 AS builder
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
-COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
-RUN ./mvnw dependency:go-offline -B
+# 시스템 패키지 설치
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy source code and build
-COPY src ./src
-RUN ./mvnw clean package -DskipTests
+# Python 의존성 설치
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+# 소스 코드 복사
+COPY src/ ./src/
 
-WORKDIR /app
+# 환경 변수
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
-# Install required packages for IBKR connection
-RUN apk add --no-cache tzdata curl
+# 포트 노출
+EXPOSE 8082
 
-# Create non-root user
-RUN addgroup -g 1000 -S appuser && \
-    adduser -u 1000 -S appuser -G appuser
-
-# Copy JAR from builder stage
-COPY --from=builder /app/target/*.jar app.jar
-
-# Create directories for logs
-RUN mkdir -p /app/logs && chown -R appuser:appuser /app
-
-USER appuser
-
-# JVM memory settings and timezone
-ENV JAVA_OPTS="-Xms512m -Xmx2g -Duser.timezone=Asia/Seoul"
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# Expose port
-EXPOSE 8080
-
-# Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# 실행
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8082"]
