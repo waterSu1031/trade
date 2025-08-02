@@ -1,0 +1,15 @@
+database:
+  driver: postgresql
+  port: 5432
+  name: trade
+  max_connections: 20
+  connection_timeout: 30
+
+redis:
+  port: 6379
+  max_connections: 10
+  timeout: 5
+
+ibkr:
+  client_timeout: 60
+  reconnect_attempts: 3

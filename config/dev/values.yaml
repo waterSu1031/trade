@@ -1,0 +1,27 @@
+environment: development
+
+database:
+  host: localhost
+  user: freeksj
+  password: Lsld1501!
+
+redis:
+  host: localhost
+  password: ""
+
+ibkr:
+  host: localhost
+  port: 4002  # Paper trading
+  username: freeksj1031
+  
+services:
+  engine:
+    port: 8000
+    debug: true
+  dashboard:
+    port: 8001
+    debug: true
+  batch:
+    port: 8002
+  frontend:
+    port: 3000

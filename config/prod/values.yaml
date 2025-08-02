@@ -1,0 +1,31 @@
+environment: production
+
+database:
+  host: trade-db
+  user: freeksj
+  # Password should be set via environment variable
+
+redis:
+  host: trade-redis
+  # Password should be set via environment variable
+
+ibkr:
+  host: ib-gateway
+  port: 4001  # Live trading
+  # Credentials should be set via environment variables
+  
+services:
+  engine:
+    port: 8000
+    debug: false
+  dashboard:
+    port: 8001
+    debug: false
+  batch:
+    port: 8002
+  frontend:
+    port: 3000
+
+logging:
+  level: INFO
+  format: json
