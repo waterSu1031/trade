@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Hours Management Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-open {
+            background-color: #28a745;
+        }
+        .status-closed {
+            background-color: #dc3545;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trading Hours Management Tool</h1>
+        
+        <!-- 거래시간 조회 -->
+        <div class="section">
+            <h2>거래시간 조회</h2>
+            <div class="form-group">
+                <label>거래소:</label>
+                <select id="queryExchange">
+                    <option value="CME">CME</option>
+                    <option value="EUREX">EUREX</option>
+                    <option value="HKFE">HKFE</option>
+                    <option value="KSE">KSE</option>
+                    <option value="JPX">JPX</option>
+                    <option value="SGX">SGX</option>
+                    <option value="CBOT">CBOT</option>
+                    <option value="NYMEX">NYMEX</option>
+                    <option value="COMEX">COMEX</option>
+                    <option value="ICEEU">ICEEU</option>
+                    <option value="NSE">NSE</option>
+                    <option value="OSE">OSE</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>날짜:</label>
+                <input type="date" id="queryDate" value="">
+            </div>
+            <button onclick="queryTradingHours()">조회</button>
+            <button onclick="checkMarketOpen()">현재 거래 가능 여부</button>
+            <div id="queryResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 데이터 수집 -->
+        <div class="section">
+            <h2>거래시간 데이터 수집</h2>
+            <div class="form-group">
+                <label>수집 대상:</label>
+                <select id="collectExchange">
+                    <option value="">전체 거래소</option>
+                    <option value="CME">CME</option>
+                    <option value="EUREX">EUREX</option>
+                    <option value="HKFE">HKFE</option>
+                    <option value="KSE">KSE</option>
+                    <option value="JPX">JPX</option>
+                    <option value="SGX">SGX</option>
+                    <option value="CBOT">CBOT</option>
+                    <option value="NYMEX">NYMEX</option>
+                    <option value="COMEX">COMEX</option>
+                    <option value="ICEEU">ICEEU</option>
+                    <option value="NSE">NSE</option>
+                    <option value="OSE">OSE</option>
+                </select>
+            </div>
+            <button onclick="collectTradingHours()">IBKR에서 수집</button>
+            <button onclick="updateWeekly()">주간 업데이트</button>
+            <button onclick="initializeFix()">FIX 데이터 초기화</button>
+            <button onclick="insertManual()">수동 데이터 입력</button>
+            <div id="collectResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 캐시 관리 -->
+        <div class="section">
+            <h2>캐시 관리</h2>
+            <div class="form-group">
+                <label>거래소:</label>
+                <select id="cacheExchange">
+                    <option value="CME">CME</option>
+                    <option value="EUREX">EUREX</option>
+                    <option value="HKFE">HKFE</option>
+                    <option value="KSE">KSE</option>
+                    <option value="JPX">JPX</option>
+                    <option value="SGX">SGX</option>
+                    <option value="CBOT">CBOT</option>
+                    <option value="NYMEX">NYMEX</option>
+                    <option value="COMEX">COMEX</option>
+                    <option value="ICEEU">ICEEU</option>
+                    <option value="NSE">NSE</option>
+                    <option value="OSE">OSE</option>
+                </select>
+            </div>
+            <button onclick="invalidateCache()">캐시 무효화</button>
+            <button onclick="getCacheStats()">캐시 통계</button>
+            <div id="cacheResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 실시간 상태 -->
+        <div class="section">
+            <h2>실시간 거래소 상태</h2>
+            <table id="statusTable">
+                <thead>
+                    <tr>
+                        <th>거래소</th>
+                        <th>상태</th>
+                        <th>시간대</th>
+                        <th>현지 시간</th>
+                        <th>조회</th>
+                    </tr>
+                </thead>
+                <tbody id="statusBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // API 기본 URL
+        const API_BASE = '/api/trading-hours';
+        
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            // 오늘 날짜 설정
+            document.getElementById('queryDate').value = new Date().toISOString().split('T')[0];
+            // 실시간 상태 로드
+            loadAllExchangeStatus();
+        };
+        
+        // 거래시간 조회
+        async function queryTradingHours() {
+            const exchange = document.getElementById('queryExchange').value;
+            const date = document.getElementById('queryDate').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${exchange}?date=${date}`);
+                const data = await response.json();
+                
+                displayResult('queryResult', formatTradingHours(data));
+            } catch (error) {
+                displayResult('queryResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 현재 거래 가능 여부 확인
+        async function checkMarketOpen() {
+            const exchange = document.getElementById('queryExchange').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${exchange}/is-open`);
+                const data = await response.json();
+                
+                displayResult('queryResult', formatMarketStatus(data));
+            } catch (error) {
+                displayResult('queryResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 거래시간 수집
+        async function collectTradingHours() {
+            const exchange = document.getElementById('collectExchange').value;
+            const url = exchange ? `${API_BASE}/collect?exchange=${exchange}` : `${API_BASE}/collect`;
+            
+            displayResult('collectResult', '수집 중...');
+            
+            try {
+                const response = await fetch(url, { method: 'POST' });
+                const data = await response.json();
+                
+                displayResult('collectResult', JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResult('collectResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 주간 업데이트
+        async function updateWeekly() {
+            displayResult('collectResult', '업데이트 중...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/update-weekly`, { method: 'POST' });
+                const data = await response.json();
+                
+                displayResult('collectResult', JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResult('collectResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // FIX 데이터 초기화
+        async function initializeFix() {
+            try {
+                const response = await fetch(`${API_BASE}/initialize-fix`, { method: 'POST' });
+                const data = await response.json();
+                
+                displayResult('collectResult', JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResult('collectResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 수동 데이터 입력
+        async function insertManual() {
+            try {
+                const response = await fetch(`${API_BASE}/manual`, { method: 'POST' });
+                const data = await response.json();
+                
+                displayResult('collectResult', JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResult('collectResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 캐시 무효화
+        async function invalidateCache() {
+            const exchange = document.getElementById('cacheExchange').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/cache/${exchange}`, { method: 'DELETE' });
+                const data = await response.json();
+                
+                displayResult('cacheResult', JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResult('cacheResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 캐시 통계
+        async function getCacheStats() {
+            try {
+                const response = await fetch(`${API_BASE}/cache/stats`);
+                const data = await response.json();
+                
+                displayResult('cacheResult', JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResult('cacheResult', `오류: ${error.message}`);
+            }
+        }
+        
+        // 모든 거래소 상태 로드
+        async function loadAllExchangeStatus() {
+            const exchanges = ['CME', 'EUREX', 'HKFE', 'KSE', 'JPX', 'SGX', 'CBOT', 'NYMEX', 'COMEX', 'ICEEU', 'NSE', 'OSE'];
+            const tbody = document.getElementById('statusBody');
+            tbody.innerHTML = '';
+            
+            for (const exchange of exchanges) {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${exchange}</td>
+                    <td id="status-${exchange}">확인 중...</td>
+                    <td id="timezone-${exchange}">-</td>
+                    <td id="localtime-${exchange}">-</td>
+                    <td><button onclick="queryExchangeStatus('${exchange}')">새로고침</button></td>
+                `;
+                
+                queryExchangeStatus(exchange);
+            }
+        }
+        
+        // 개별 거래소 상태 조회
+        async function queryExchangeStatus(exchange) {
+            try {
+                const response = await fetch(`${API_BASE}/${exchange}/is-open`);
+                const data = await response.json();
+                
+                const statusCell = document.getElementById(`status-${exchange}`);
+                const timezoneCell = document.getElementById(`timezone-${exchange}`);
+                const localtimeCell = document.getElementById(`localtime-${exchange}`);
+                
+                if (data.isOpen) {
+                    statusCell.innerHTML = '<span class="status-indicator status-open"></span>거래중';
+                } else {
+                    statusCell.innerHTML = '<span class="status-indicator status-closed"></span>마감';
+                }
+                
+                // 시간대 정보 (실제로는 서버에서 받아와야 함)
+                const timezones = {
+                    'CME': 'America/Chicago',
+                    'EUREX': 'Europe/Berlin',
+                    'HKFE': 'Asia/Hong_Kong',
+                    'KSE': 'Asia/Seoul',
+                    'JPX': 'Asia/Tokyo',
+                    'SGX': 'Asia/Singapore',
+                    'CBOT': 'America/Chicago',
+                    'NYMEX': 'America/New_York',
+                    'COMEX': 'America/New_York',
+                    'ICEEU': 'Europe/London',
+                    'NSE': 'Asia/Kolkata',
+                    'OSE': 'Asia/Tokyo'
+                };
+                
+                const timezone = timezones[exchange];
+                timezoneCell.textContent = timezone;
+                
+                // 현지 시간 계산
+                const localTime = new Date().toLocaleString('ko-KR', { timeZone: timezone });
+                localtimeCell.textContent = localTime;
+                
+            } catch (error) {
+                document.getElementById(`status-${exchange}`).textContent = '오류';
+            }
+        }
+        
+        // 결과 표시
+        function displayResult(elementId, content) {
+            const element = document.getElementById(elementId);
+            element.textContent = content;
+            element.style.display = 'block';
+        }
+        
+        // 거래시간 포맷팅
+        function formatTradingHours(data) {
+            let result = `거래소: ${data.exchange}
+날짜: ${data.date}
+거래일 여부: ${data.isTradingDay ? '예' : '아니오'}
+
+거래시간:
+`;
+            
+            if (data.tradingHours && data.tradingHours.length > 0) {
+                data.tradingHours.forEach(session => {
+                    result += `
+세션: ${session.session || 'REGULAR'}
+시작 (현지): ${session.start_time_loc || '-'}
+종료 (현지): ${session.end_time_loc || '-'}
+시작 (UTC): ${session.start_time_utc || '-'}
+종료 (UTC): ${session.end_time_utc || '-'}
+`;
+                });
+            } else {
+                result += '거래시간 데이터 없음';
+            }
+            
+            return result;
+        }
+        
+        // 시장 상태 포맷팅
+        function formatMarketStatus(data) {
+            return `거래소: ${data.exchange}
+현재 시간: ${data.currentTime}
+거래 가능: ${data.isOpen ? '예 (거래중)' : '아니오 (마감)'}`;
+        }
+        
+        // 5분마다 자동 새로고침
+        setInterval(() => {
+            loadAllExchangeStatus();
+        }, 300000);
+    </script>
+</body>
+</html>
